@@ -1,0 +1,11 @@
+
+{
+    "PRIMARY_COLOR": "#87CEEB",
+    "SECONDARY_COLOR" : "#044C6A",
+    "NATURAL_COLOR" : {
+    "black": "#000000",
+    "white": "#FCFCFC"},
+    "TEXT_BUTTON_COLOR": "#4A8CE2",
+    "SECONDARY_COLOR_VARIANT": "#59ac4f"
+}
+
