@@ -5,39 +5,28 @@ import {
   SIGNUP_FAILURE,
 } from "./actionTypes";
 import api from "../../helpers/api";
-import axios from "axios";
 
-export const SignUpRequest = async (
-  formdata,
-  config,
-  callback,
-  errorCallback
-) => {
-  // console.log(formdata)
-//   await api.post('register', formdata, config)
-//     .then((response) => {
-//       console.log(response);
-//       callback(response.data);
-//     })
-//     .catch((response) => {
-//       errorCallback(response);
-//     });
-
-axios.post("http://act.mainnetconnections.com/api/auth/register", formdata, config)
-.then(res => {
-    console.log(res.data)
-}).catch(err => {
-    errorCallback(err)
-})
+export const SignUpRequest =async (formdata, callback, errorCallback) => {
+  // console.log(formdata);
+  var requestOptions = {
+    method: 'POST',
+    body: formdata,
+    redirect: 'follow'
+  };
+  
+  fetch("http://act.mainnetconnections.com/api/auth/register", requestOptions)
+    .then(response => response.text())
+    .then(result => console.log(result))
+    .catch(error => console.log('error', error));
 };
 
-export const SignInRequest = (email, token) => async (dispatch) => {
-  await api
-    .post("", { email, token })
+export const SignInRequest = (email,password, callback) => async (dispatch) => {
+  await api.post('login', {email,password})
     .then((response) => {
       if (response.status) {
         // dispacth action
         console.log(response.data);
+        callback(response)
       }
     })
     .catch((e) => {

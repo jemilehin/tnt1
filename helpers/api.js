@@ -3,7 +3,7 @@ import axios from "axios";
 const URL = "http://act.mainnetconnections.com/api/auth/";
 // const URL = "http://172.16.1.121:8000/api"
 
-const instance = axios.create({
+export const instance = axios.create({
   baseURL: URL,
 });
 

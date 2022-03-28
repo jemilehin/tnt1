@@ -1,4 +1,10 @@
-const reducers = (state = {}, action) => {
+import { combineReducers } from "redux";
+const initialState = {
+  token: null,
+  user: {}
+}
+
+const reducers = (state = initialState, action) => {
   switch (action.type) {
     case SIGNUP_SUCCESS:
       return { ...state, user: action.payload };
@@ -16,3 +22,7 @@ const reducers = (state = {}, action) => {
       break;
   }
 };
+
+export default combineReducers({
+  token: reducers
+})

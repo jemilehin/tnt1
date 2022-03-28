@@ -1,7 +1,27 @@
-import { createStore, combineReducers, applyMiddleware } from "redux";
-import thunk from "redux-thunk";
-import reducer from '../Redux/Member/reducers'
+import { createStore, combineReducers } from "redux";
 
-const rootReducer = combineReducers({reducer})
+const rootReducers = combineReducers({
+    
+})
 
-export const store = createStore(rootReducer, applyMiddleware(thunk))
+const reducer = (state = {},action) => {
+    switch (action.type) {
+        case 'SIGNIN_SUCCESS':
+            return {
+                user: action.payload.user,
+                token: action.payload.token
+            }
+        case 'SIGNUP_SUCCESS':
+            return{
+                user: action.payload.user
+            }
+        case 'SIGNUP_FAILURE':
+            return {}
+        case 'SIGNOUT_SUCCESS':
+            return {}
+        default:
+            return state;
+        }
+}
+
+let store = createStore(reducer)

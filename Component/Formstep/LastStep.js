@@ -33,6 +33,8 @@ export default function LoginPassword({navigation}) {
   const [pass, setPass] = React.useState("");
   const [user, setUser] = React.useState({});
   const [OTP, setOTP] = React.useState();
+  const [validId, setValidid] = React.useState('')
+  const [profileImg, setProfileImage] = React.useState('')
 
   const {signUp} = React.useContext(AuthContext);
 
@@ -52,6 +54,8 @@ export default function LoginPassword({navigation}) {
       const mobile_num = await AsyncStorage.getItem("mobile_num");
       const email = await AsyncStorage.getItem("email");
       const gender = await AsyncStorage.getItem("gender");
+      setValidid(id_card)
+      setProfileImage(profile)
       setUser({
         ...user,
         'fullname': fullname,
@@ -70,6 +74,9 @@ export default function LoginPassword({navigation}) {
       console.log(e);
     }
   }, []);
+
+  const imageType = validId !== null ? validId.split('.')[3] : ''
+  const profileImageType = profileImg !== null ? profileImg.split('.')[3] : ''
 
   // console.log(user);
   // console.log(stringOTP);
@@ -95,12 +102,9 @@ export default function LoginPassword({navigation}) {
     PhoneAuth();
   }
 
-  const config = {
-    headers: {"Content-type": "multipart/form-data"}
-  };
-
   const formData = new FormData();
   formData.append("fullname", user.fullname);
+  formData.append('state', user.state)
   formData.append("phone", user.phone);
   formData.append("email", user.email);
   formData.append("gender", user.gender);
@@ -108,14 +112,14 @@ export default function LoginPassword({navigation}) {
   formData.append("ward", user.ward);
   formData.append("polling-unit", user.polling_unit);
   formData.append("address", user.address);
-  formData.append("img", {uri: user.img,type: 'image/*'});
-  formData.append("validId", {uri: user.validId, type: 'image/*'});
+  formData.append("img",{uri: user.img, type: `image/${profileImageType}`});
+  formData.append("validId", {uri: user.validId,
+     type: `image/${imageType}`
+  });
   formData.append("password", pass);
-  formData.append("password_confirmation", pass);
-  // console.log(user.img)
 
   const signUpUser = () => {
-    SignUpRequest(formData,config,callback,errorCallback)
+    SignUpRequest(formData,callback,errorCallback)
   };
 
   const deleteAsyncData = async() => {
@@ -130,7 +134,7 @@ export default function LoginPassword({navigation}) {
 
   const callback = (response) => {
     if(response){
-      console.log("successfully registered")
+      console.log(response)
       signUp()
       deleteAsyncData()
     }else{

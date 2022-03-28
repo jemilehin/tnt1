@@ -25,7 +25,7 @@ const Stack = createNativeStackNavigator();
 
 export default function App({ navigation, route }) {
   const [isloggedIn, setIsLoggedIn] = React.useState(false);
-
+  // const {auth} =
   const authContext = React.useMemo(() => ({
     signIn: () => {
       setIsLoggedIn(true);

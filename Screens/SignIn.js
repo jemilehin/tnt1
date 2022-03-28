@@ -9,14 +9,22 @@ import {
   TextInput,
 } from "react-native";
 import colors from "../Constant/Color.json";
+import { SignInRequest } from "../Redux/Member/actions";
 
 export default function SignIn({ navigation }) {
   const [email, setEmail] = useState();
   const [password, setPassword] = useState();
-  console.log({email,password})
+  // console.log({email,password})
 
-  const SignIn = () => {
+  const OnSignIn = () => {
+    SignInRequest(email,password,callback)
+  }
 
+  const callback = (response) => {
+    console.log(response)
+    // if(response.status){
+    //   SignIn()
+    // }
   }
 
 
@@ -47,7 +55,7 @@ export default function SignIn({ navigation }) {
 
       <View style={styles.buttonSection}>
           <TouchableOpacity style={[styles.button]}
-            onPress={()=> SignIn()}
+            onPress={()=> OnSignIn()}
           >
               <Text style={styles.buttonText}>Login</Text>
           </TouchableOpacity>

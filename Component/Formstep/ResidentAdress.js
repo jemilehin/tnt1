@@ -12,6 +12,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Picker } from "@react-native-picker/picker";
 import * as ImagePicker from "expo-image-picker";
 import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
+import * as DocumentPicker from "expo-document-picker";
 
 import colors from "../../Constant/Color.json";
 
@@ -41,13 +42,13 @@ export default function ResidentAddress() {
       // console.log('profile')
       setUser({
         ...user,
-        "state": state,
-        "lga": lga,
-        "ward": ward,
-        "polling_unit": polling_unit,
-        "address": address,
-        "profile_img": profile,
-        "id_card": id_card,
+        state: state,
+        lga: lga,
+        ward: ward,
+        polling_unit: polling_unit,
+        address: address,
+        profile_img: profile,
+        id_card: id_card,
       });
       // setSelectedStatevalue(state)
       // setSelectedLgas(lga)
@@ -71,24 +72,32 @@ export default function ResidentAddress() {
 
     let pickerResult = await ImagePicker.launchImageLibraryAsync();
     // console.log(pickerResult);
+    let result = pickerResult.uri;
+    const imageUri = result.replace("file:///data", "file:/data");
     if (!pickerResult.cancelled) {
       setImageUploadedResult("uploaded");
-      await AsyncStorage.setItem('profile_img', pickerResult.uri)
+      await AsyncStorage.setItem("profile_img", imageUri);
     } else {
       setImageUploadedResult("cancelled");
-      await AsyncStorage.removeItem('profile_img', pickerResult.uri)
+      await AsyncStorage.removeItem("profile_img", imageUri);
     }
   };
 
   const pickIdCard = async () => {
-    let pickerResult = await ImagePicker.launchImageLibraryAsync();
-    // console.log(pickerResult);
+    let pickerResult = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      aspect: [4, 3],
+      quality: 1,
+    });
+    let result = pickerResult.uri;
+    const imageUri = result.replace("file:///data", "file:/data");
     if (!pickerResult.cancelled) {
       setIdCardUploadedResult("uploaded");
-      await AsyncStorage.setItem('id_card', pickerResult.uri)
+      await AsyncStorage.setItem("id_card", imageUri);
     } else {
       setIdCardUploadedResult("cancelled");
-      await AsyncStorage.removeItem('id_card', pickerResult.uri)
+      await AsyncStorage.removeItem("id_card", imageUri);
     }
   };
 
@@ -163,7 +172,7 @@ export default function ResidentAddress() {
             <Text style={[styles.textAttribute, styles.fonts]}>Ward</Text>
             <Picker
               style={[styles.input, styles.layoutStyle]}
-              selectedValue={user.ward === "" ? selectedWard : user.ward}
+              selectedValue={selectedWard}
               onValueChange={async (itemValue, itemIndex) => {
                 try {
                   setWard(lgas[itemValue].polling_unit);
@@ -174,7 +183,10 @@ export default function ResidentAddress() {
                 }
               }}
             >
-              <Picker.Item label={user.ward === "" ? "Select ward"  : user.ward} value="" />
+              <Picker.Item
+                label={user.ward === "" ? "Select ward" : user.ward}
+                value=""
+              />
               {lgas !== null
                 ? lgas.map((ward, index) => (
                     <Picker.Item label={ward.name} value={index} key={index} />
@@ -208,7 +220,11 @@ export default function ResidentAddress() {
               />
               {ward !== null
                 ? ward.map((polling_unit, index) => (
-                    <Picker.Item label={polling_unit} value={index} key={index} />
+                    <Picker.Item
+                      label={polling_unit}
+                      value={index}
+                      key={index}
+                    />
                   ))
                 : null}
             </Picker>
