@@ -1,11 +1,11 @@
-import axios from "axios";
+// import axios from "axios";
 
-const URL = "http://act.mainnetconnections.com/api/auth/";
+export const URL = "http://act.mainnetconnections.com/api/auth/";
 // const URL = "http://172.16.1.121:8000/api"
 
-const instance = axios.create({
-  baseURL: URL,
-});
+// const instance = axios.create({
+//   baseURL: URL,
+// });
 
 // instance.interceptors.request.use((config) => {
 
@@ -14,4 +14,4 @@ const instance = axios.create({
 //   return config;
 // });
 
-export default instance;
+// export default instance;

@@ -18,8 +18,16 @@ import ChatRoom from "./Screens/ChatRoom";
 // import { store } from "./Redux/Store";
 
 import { firebaseConfig } from "./helpers/Config";
-import { initializeApp } from 'firebase/app';
+import { initializeApp, getApp  } from 'firebase/app';
 initializeApp(firebaseConfig);
+
+// Firebase references
+const app = getApp();
+
+// Double-check that we can run the example
+if (!app?.options || Platform.OS === 'web') {
+  throw new Error('This example only works on Android or iOS, and requires a valid Firebase config.');
+}
 
 const Stack = createNativeStackNavigator();
 

@@ -19,8 +19,8 @@ import {
   PhoneAuthProvider,
   signInWithCredential,
 } from "firebase/auth";
-import { getApp } from "firebase/app";
 import { getFirestore, setDoc, doc } from "firebase/firestore";
+import { getApp } from "firebase/app";
 
 import colors from "../../Constant/Color.json";
 import { SignUpRequest } from "../../Redux/Member/actions";
@@ -29,17 +29,61 @@ import { AuthContext } from "../context";
 
 export default function LoginPassword({navigation}) {
   const recaptchaVerifier = React.useRef(null);
-  const [userNumber, setUserMobileNumber] = React.useState("");
   const [pass, setPass] = React.useState("");
   const [user, setUser] = React.useState({});
   const [OTP, setOTP] = React.useState();
+  const [verificationId, setVerificationId] = React.useState();
+
+  const firebaseConfig = app ? app.options : undefined;
+  const [message, showMessage] = React.useState();
+  const attemptInvisibleVerification = false;
 
   const {signUp} = React.useContext(AuthContext);
 
-  const appVerifier = window.recaptchaVerifier;
-
   const stringOTP = String(OTP).length;
+
+  const app = getApp()
+  const auth = getAuth()
+
+  const sendVerificationCode = async () => {
+    // The FirebaseRecaptchaVerifierModal ref implements the
+    // FirebaseAuthApplicationVerifier interface and can be
+    // passed directly to `verifyPhoneNumber`.
+    try {
+      const phoneProvider = new PhoneAuthProvider(auth);
+      const verificationId = await phoneProvider.verifyPhoneNumber(
+        '+234'+user.phone,
+        recaptchaVerifier.current
+      );
+      setVerificationId(verificationId);
+      console.log('hello')
+      showMessage({
+        text: 'Verification code has been sent to your phone.',
+      });
+    } catch (err) {
+      showMessage({ text: `Error: ${err.message}`, color: 'red' });
+    }
+  }
+
+  const VerifyCode = async () => {
+    try {
+      const credential = PhoneAuthProvider.credential(
+        verificationId,
+        OTP
+      );
+      await signInWithCredential(auth, credential);
+      showMessage({ text: 'Phone authentication successful 👍' });
+    } catch (err) {
+      showMessage({ text: `Error: ${err.message}`, color: 'red' });
+    }
+  }
+
+  console.log('number','+234'+user.phone)
+
   React.useEffect(async () => {
+      if(user.phone !== null){
+      sendVerificationCode()
+      }
     try {
       const state = await AsyncStorage.getItem("state");
       const lga = await AsyncStorage.getItem("lga");
@@ -71,33 +115,9 @@ export default function LoginPassword({navigation}) {
     }
   }, []);
 
-  // console.log(user);
-  // console.log(stringOTP);
-
-  // Firebase references
-  const app = getApp();
-  const auth = getAuth();
-
-  const PhoneAuth = async () => {
-    try {
-      const credential = PhoneAuthProvider.credential(
-        verificationId,
-        verificationCode
-      );
-      await signInWithCredential(auth, credential);
-      showMessage({ text: "Phone authentication successful 👍" });
-    } catch (err) {
-      showMessage({ text: `Error: ${err.message}`, color: "red" });
-    }
-  };
-
   if (stringOTP === 6) {
-    PhoneAuth();
+    VerifyCode()
   }
-
-  const config = {
-    headers: {"Content-type": "multipart/form-data"}
-  };
 
   const formData = new FormData();
   formData.append("fullname", user.fullname);
@@ -115,7 +135,8 @@ export default function LoginPassword({navigation}) {
   // console.log(user.img)
 
   const signUpUser = () => {
-    SignUpRequest(formData,config,callback,errorCallback)
+    SignUpRequest(formData,callback,errorCallback)
+    // fetch()
   };
 
   const deleteAsyncData = async() => {
@@ -133,6 +154,7 @@ export default function LoginPassword({navigation}) {
       console.log("successfully registered")
       signUp()
       deleteAsyncData()
+      console.log(response.body)
     }else{
       console.log(response)
     }
@@ -140,8 +162,6 @@ export default function LoginPassword({navigation}) {
 
   const errorCallback = (response) => {
     console.log('response error',response)
-    // console.log(response.status)
-    // console.log(response.headers)
   }
 
   return (
@@ -149,8 +169,8 @@ export default function LoginPassword({navigation}) {
       <FirebaseRecaptchaVerifierModal
         ref={recaptchaVerifier}
         firebaseConfig={app.options}
-        // attemptInvisibleVerification
-      />
+        attemptInvisibleVerification
+      /> 
       <View style={[styles.innerContainer, styles.layoutStyle]}>
         <Text style={[styles.header, styles.fonts]}>Enter login password</Text>
       </View>

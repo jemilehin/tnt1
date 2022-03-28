@@ -163,7 +163,7 @@ export default function ResidentAddress() {
             <Text style={[styles.textAttribute, styles.fonts]}>Ward</Text>
             <Picker
               style={[styles.input, styles.layoutStyle]}
-              selectedValue={user.ward === "" ? selectedWard : user.ward}
+              selectedValue={selectedWard}
               onValueChange={async (itemValue, itemIndex) => {
                 try {
                   setWard(lgas[itemValue].polling_unit);
