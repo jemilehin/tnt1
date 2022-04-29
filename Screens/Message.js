@@ -13,6 +13,7 @@ import {
 import { IconButton } from "react-native-paper";
 
 import colors from "../Constant/Color.json";
+import { URL } from "../helpers/api";
 
 export const FullMessage = ({ navigation, route }) => {
   const [message, setMessage] = React.useState({});
@@ -21,10 +22,11 @@ export const FullMessage = ({ navigation, route }) => {
   const { messageId } = route.params;
 
   useEffect(() => {
-    fetch("https://dummyjson.com/posts/" + messageId)
-      .then((res) => res.json())
+    fetch(`${URL}viewMessage/${messageId}`)
+      .then((res) => res.text())
       .then((res) => {
-        setMessage(res);
+        // console.log(res)
+        setMessage(JSON.parse(res));
         setLoading(true);
       });
   }, []);
@@ -46,12 +48,14 @@ export const FullMessage = ({ navigation, route }) => {
     <SafeAreaView
       style={styles.container}
     >
-      {!loading ? (
-        <ActivityIndicator size="large" />
+      {!loading ? (<View style={{ top: "50%", position: "absolute"}}>
+          <ActivityIndicator
+            color={colors.SECONDARY_COLOR_VARIANT} size="large" />
+        </View>
       ) : (
-        <View style={{}}>
-          <Text style={[styles.title, styles.font]}>{message.title}</Text>
-          <Text style={[styles.body, styles.font]}>{message.body}</Text>
+        <View>
+          <Text style={[styles.title, styles.font]}>{message.message.title}</Text>
+          <Text style={[styles.body, styles.font]}>{message.message.content}</Text>
         </View>
       )}
     </SafeAreaView>
@@ -68,16 +72,14 @@ const styles = StyleSheet.create({
   title: {
     position: "relative",
     fontSize: 27,
-    fontWeight: "500",
+    fontWeight: "700",
     textAlign: "center",
     color: colors.NATURAL_COLOR.black,
-  },
-  font: {
-    fontFamily: "roboto",
+    top: "30%"
   },
   body: {
     position: "relative",
-    top: 30,
+    top: "30%",
     fontSize: 15,
     color: colors.SECONDARY_COLOR,
     lineHeight: 25,

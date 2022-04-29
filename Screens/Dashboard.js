@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   View,
   Text,
@@ -6,49 +6,136 @@ import {
   StatusBar,
   SafeAreaView,
   ScrollView,
-  Button,FlatList
+  Image,
+  FlatList,
+  ActivityIndicator,
+  Dimensions,
 } from "react-native";
-import { IconButton } from "react-native-paper";
 import { FAB } from "react-native-paper";
-import Card from '../Component/Card'
+import Card from "../Component/Card";
+import SnackBar from "react-native-snackbar-component";
 
 import colors from "../Constant/Color.json";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { URL } from "../helpers/api";
 
 export const Dashboard = ({ navigation, route }) => {
   const [messages, setMessages] = React.useState([]);
+  const [snackMessage, setSnackMessage] = React.useState(true);
+  const [skip, setSkip] = useState(0);
+  const [limit, setLimit] = useState(0);
+  const [refresh, setRefresh] = useState(false);
+  const [response, setResponse] = useState(true);
 
   React.useEffect(() => {
-    fetch("https://dummyjson.com/posts")
+    fetch(`${URL}allMessage`)
       .then((res) => res.json())
-      .then((data) =>  setMessages(data.posts))
-      .catch((e) => console.log(e));
+      .then((data) => {
+        setMessages(data.message);
+        setResponse(false);
+      })
+      .catch((e) => setResponse(false));
+    setTimeout(() => setSnackMessage(false), 1500);
   }, []);
 
+  const fetchMoreData = () => {
+    let skipped = skip < limit ? skip + 5 : skip;
+    if (skipped < limit) {
+      setSkip(skipped);
+      // fetch(`https://dummyjson.com/posts?limit=10&skip=${skipped}`)
+      //   .then((res) => res.json())
+      //   .then((data) => {
+      //     setMessages(data.posts);
+      //   });
+    } else {
+      alert("no more message");
+    }
+  };
 
+  const prevMessages = () => {
+    let prevSkipped = skip > 0 ? skip - 5 : skip;
+    setRefresh(true);
+    if (prevSkipped === 0) {
+      alert("no new message");
+      setRefresh(false);
+    } else {
+      setSkip(prevSkipped);
+      // fetch(`${URL}allMessage`)
+      //   .then((res) => res.json())
+      //   .then((data) => {
+      //     setMessages(data.posts);
+      //     setRefresh(false)
+      //   });
+    }
+  };
 
   return (
     <SafeAreaView style={styles.safeContainer}>
       <StatusBar />
       <View style={styles.container}>
-        <FlatList
-        data={messages.reverse()}
-        renderItem={({item}) => 
-        <Card style={[styles.card]} onPress={() => {
-          navigation.navigate('Message',{messageId: item.id})
-          // console.log("mId:", item.id)
-          }}>
-          <Text style={styles.item}>{item.title}</Text>
-          <Text style={styles.decription}>{item.body}</Text>
-        </Card>
-          }
-          ItemSeparatorComponent={() => <View style={{ height: 5 }} />}
-          ListEmptyComponent ={() => <View ><Text>No message from the admin.You will get notified when there is a new message</Text></View>}
-      />
+        {messages.length > 0 && !response ? (
+          <FlatList
+            data={messages}
+            style={{ width: "100%" }}
+            renderItem={({ item }) => (
+              <Card
+                style={[styles.card]}
+                onPress={() => {
+                  navigation.navigate("Message", { messageId: item.id });
+                }}
+              >
+                <Text style={styles.item}>{item.title}</Text>
+                <Text style={styles.decription}>{item.content}</Text>
+              </Card>
+            )}
+            ItemSeparatorComponent={() => <View style={{ height: 5 }} />}
+            ListEmptyComponent={() => (
+              <View>
+                <Text>
+                  No message from the admin.You will get notified when there is
+                  a new message
+                </Text>
+              </View>
+            )}
+            onEndReachedThreshold={0.3}
+            onEndReached={() => fetchMoreData()}
+            onRefresh={() => prevMessages()}
+            keyExtractor={(item) => item.id}
+            refreshing={refresh}
+            ListFooterComponent={() => {
+              return (
+                <ActivityIndicator
+                  style={{ top: -35, position: "absolute", left: "45%" }}
+                  color={colors.SECONDARY_COLOR_VARIANT}
+                  size="large"
+                />
+              );
+            }}
+          />
+        ) : !response && messages.length === 0 ? (
+          <>
+            <Image
+              source={require("../assets/images/empty_msg.png")}
+              style={{ height: "30%" }}
+              resizeMode="contain"
+            />
+          </>
+        ) : (
+          <View>
+            <ActivityIndicator
+              // style={{ position: "absolute" }}
+              color={colors.SECONDARY_COLOR_VARIANT}
+              size="large"
+            />
+            <Text>Checking for new message</Text>
+          </View>
+        )}
+        <SnackBar visible={snackMessage} textMessage="Login successful" />
         <FAB
           style={styles.fab}
           large
           icon="message"
-          onPress={() => navigation.navigate('Chatroom')}
+          onPress={() => navigation.navigate("Chatroom")}
         />
       </View>
     </SafeAreaView>
@@ -61,7 +148,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
     alignItems: "center",
     justifyContent: "center",
-    marginTop: 10
+    marginTop: 10,
   },
   safeContainer: {
     flex: 1,
@@ -71,18 +158,18 @@ const styles = StyleSheet.create({
     margin: 16,
     right: 0,
     bottom: 0,
-    backgroundColor: colors.SECONDARY_COLOR,
+    backgroundColor: colors.PRIMARY_COLOR,
   },
-  item:{
+  item: {
     fontSize: 20,
-    fontWeight: '500'
+    fontWeight: "500",
   },
 
   card: {
     height: 200,
-    width: '100%',
-    backgroundColor: '#f18484',
-    justifyContent: 'center', //Centered vertically
-    alignItems: 'center', // Centered horizontally
-  }
+    width: Dimensions.get("window").width,
+    backgroundColor: "#f18484",
+    justifyContent: "center", //Centered vertically
+    alignItems: "center", // Centered horizontally
+  },
 });

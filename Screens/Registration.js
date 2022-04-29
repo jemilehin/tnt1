@@ -1,131 +1,241 @@
 import * as React from "react";
+import Toast from "react-native-root-toast";
 import {
   View,
   TouchableOpacity,
   Dimensions,
   StyleSheet,
   Text,
+  ScrollView,
+  SafeAreaView,
 } from "react-native";
 import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
-
-import AsyncStorage from "@react-native-async-storage/async-storage";
-
+import PagerView from "react-native-pager-view";
+import { Indicator } from "../Component/Indicator";
 import { BasicInfo } from "../Component/Formstep/BasicInfo";
 import LoginPassword from "../Component/Formstep/LastStep";
 import ResidentAddress from "../Component/Formstep/ResidentAdress";
 
 import colors from "../Constant/Color.json";
-// import { user } from "../ReduxStore/Reducers/user";
 
 import { AuthContext } from "../Component/context";
+import { Header } from "../Component/HeaderBack";
+import { SignUpRequest } from "../Redux/Member/actions";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
-// function to show progress of form steps
-const Indicator = ({ step, selected }) => {
-  let i = 0;
-  let indicators = [];
-  for (i; i < step; i++) {
-    indicators.push(i + 1);
-  }
-
+const FormPages = (props) => {
   return (
-    <View
-      style={{
-        flexDirection: "row",
-        justifyContent: "center",
-        marginBottom: 10,
-      }}
+    <PagerView
+      ref={props.pager}
+      style={{ flex: 1 }}
+      initialPage={0}
+      pageMargin={10}
+      onPageScroll={(e) => props.setSelected(e.nativeEvent.position + 1)}
     >
-      <View
-        style={{
-          flexDirection: "row",
-          justifyContent: "space-between",
-          width: "12%",
-        }}
-      >
-        {indicators.map((item, index) => (
-          <View
-            key={index}
-            style={{
-              borderRadius: 5,
-              height: 8,
-              backgroundColor: colors.NATURAL_COLOR.black,
-              width: item === selected ? 13 : 8,
-            }}
-          />
-        ))}
+      <View key="1">
+        <BasicInfo
+          setFullname={props.setFullname}
+          setNumber={props.setNumber}
+          setEmail={props.setEmail}
+          setGender={props.setGender}
+          setPassword={props.setPassword}
+        />
       </View>
-    </View>
+      <View key="2">
+        <ResidentAddress
+          setStateValue={props.setStateValue}
+          setLgaValue={props.setLgaValue}
+          setWardValue={props.setWardValue}
+          setPollingUnitValue={props.setPollingUnitValue}
+          setAddressValue={props.setAddressValue}
+          setImageSrc={props.setImageSrc}
+          setIDSrc={props.setIDSrc}
+          selected={props.selected - 1}
+        />
+      </View>
+      {/* <View key="3">
+        <LoginPassword isOtpSent={props.isOtpSent} setOtpIsSent={props.setOtpIsSent} SignUpUser={props.SignUpUser} setOtp={props.setOtp} selected={props.selected - 1} />
+      </View> */}
+    </PagerView>
   );
 };
 
-const buttonPostion = Math.round(
-  (42.9 / 100) * Dimensions.get("window").height
-);
-
+const buttonPostion =
+  Dimensions.get("screen").height < 650
+    ? Math.round((2 / 100) * Dimensions.get("window").height)
+    : Math.round((40 / 100) * Dimensions.get("window").height);
 const buttonPositionInPercentValue = Math.round(
-  (17 / 100) * Dimensions.get("window").height
+  (-5 / 100) * Dimensions.get("screen").height
 );
 
 export default function Registration({ navigation }) {
-  const [selected, setSelected] = React.useState(1);
+
   const { signUp } = React.useContext(AuthContext);
-  const [user, setUser] = React.useState(null);
-  const [password, setPassword] = React.useState('')
 
-  React.useLayoutEffect(() => {
-    navigation.setOptions({
-      headerLeft: () => {
-        return (
-          <MaterialCommunityIcons
-            name="keyboard-backspace"
-            style={{ marginLeft: 3 }}
-            size={30}
-            color={colors.NATURAL_COLOR.black}
-            onPress={() => navigation.navigate("Login")}
-          />
-        );
-      },
-    });
-  }, []);
+  const [selected, setSelected] = React.useState(1);
+  const [fullname, setFullname] = React.useState("");
+  const [number, setNumber] = React.useState("");
+  const [email, setEmail] = React.useState("");
+  const [gender, setGender] = React.useState("");
+  const [password, setPassword] = React.useState("");
+  const [stateValue, setStateValue] = React.useState("");
+  const [lgaValue, setLgaValue] = React.useState("");
+  const [polling_unit, setPollingUnitValue] = React.useState("");
+  const [wardValue, setWardValue] = React.useState("");
+  const [addressValue, setAddressValue] = React.useState("");
+  const [imageSrc, setImageSrc] = React.useState("");
+  const [idSrc, setIDSrc] = React.useState("");
+  const [OTP, setOtp] = React.useState("");
+  const [isOtpSent, setOtpIsSent] = React.useState(false);
+  const pagerView = React.useRef(0);
 
-  // function to iterate over form steps and display each layout on screen
-  const SwitchForm = () => {
-    switch (selected) {
-      case 1:
-        return (
-          <BasicInfo
-          />
-        );
-      case 2:
-        return (
-          <ResidentAddress
-            // user={user}
-            // setUser={setUser}
-            step={selected}
-          />
-        );
-      case 3:
-        return (
-          <LoginPassword
-          />
-        );
-      default:
-        break;
+  // console.log(OTP)
+  const formData = new FormData();
+  formData.append("fullname", fullname);
+  formData.append("state", stateValue);
+  formData.append("phone", number);
+  formData.append("email", email);
+  formData.append("gender", gender);
+  formData.append("lg", lgaValue);
+  formData.append("ward", wardValue);
+  formData.append("pollingUnit", polling_unit);
+  formData.append("address", addressValue);
+  formData.append("img", imageSrc);
+  formData.append("validId", idSrc);
+  formData.append("password", password);
+
+  const deleteAsyncData = async () => {
+    let keys;
+    try {
+      keys = await AsyncStorage.multiGet([
+        "state",
+        "lga",
+        "ward",
+        "polling_unit",
+        "address",
+        "profile_img",
+        "id_card",
+        "fullname",
+        "mobile_num",
+        "email",
+        "gender",
+        "password",
+      ]);
+      await AsyncStorage.multiRemove(keys);
+    } catch (e) {
+      // read key error
+      console.log(e);
     }
   };
 
-  const next = (selected) => {
-    setSelected(selected + 1);
+  const callback = (response) => {
+    if (response.message === "User successfully registered") {
+      deleteAsyncData();
+      signUp();
+      // setLoading(false);
+      passUser(JSON.stringify(response.user));
+    }
+    // setLoading(false);
   };
 
-  const AuthUser = () => {
-    getUserData()
+  const passUser = async (data) => {
+    console.log("dataUser", data);
+    await AsyncStorage.setItem("user", data);
   };
+
+  const errorCallback = (response) => {
+    console.log("response error:", response);
+    // setLoading(false);
+  };
+
+  const SignUpUser = () => {
+    console.log("here")
+    if (fullname === null) {
+      return ToastAndroid.show("Your fullname is required", ToastAndroid.SHORT);
+    }
+    if (number === null) {
+      return ToastAndroid.show(
+        "Your mobile number is required",
+        ToastAndroid.SHORT
+      );
+    }
+    if (email === null) {
+      return ToastAndroid.show("Your email is required", ToastAndroid.SHORT);
+    }
+    if (gender === null) {
+      return ToastAndroid.show("Your gender is required", ToastAndroid.SHORT);
+    }
+    // if (state === null) {
+    //   return ToastAndroid.show("State is required", ToastAndroid.SHORT);
+    // }
+    // if (lg === null) {
+    //   return ToastAndroid.show("LGA is required", ToastAndroid.SHORT);
+    // }
+    // if (ward === null) {
+    //   return ToastAndroid.show("Your ward is required", ToastAndroid.SHORT);
+    // }
+    // if (polling_unit === null) {
+    //   return ToastAndroid.show("Polling unit is required", ToastAndroid.SHORT);
+    // }
+    if (addressValue === null) {
+      return ToastAndroid.show("Your address is required", ToastAndroid.SHORT);
+    }
+    if (password === null) {
+      return ToastAndroid.show("Set a password", ToastAndroid.SHORT);
+    } else {
+      // console.log("here")
+      SignUpRequest(formData, callback, errorCallback);
+      // if (!isOtpSent) {
+      //   StartVerification(`+234${user.phone}`, smsCallback, errcallback)
+      //   // return Toast.show("Verify mobile number.", {
+      //   //   duration: Toast.durations.SHORT,
+      //   // });
+      // } else {
+      //   if (OTPLenght === 6) {
+      //     CheckVerification(`+234${number}`, OTP, VerifyCallback);
+      //     setLoading(true);
+      //   } else {
+      //     return Toast.show(
+      //       "Type the 6 digit OTP code sent to your phone number",
+      //       {
+      //         duration: Toast.durations.SHORT,
+      //       }
+      //     );
+      //   }
+      // }
+    }
+  };
+
+  const next = (index) => {
+    pagerView.current.setPage(index);
+  };
+
+  Header("LEFT", navigation, colors.PRIMARY_COLOR);
 
   return (
     <View style={styles.container}>
-      <SwitchForm />
-
+      <FormPages
+        setFullname={setFullname}
+        setNumber={setNumber}
+        setEmail={setEmail}
+        setGender={setGender}
+        setPassword={setPassword}
+        setStateValue={setStateValue}
+        setLgaValue={setLgaValue}
+        setWardValue={setWardValue}
+        setPollingUnitValue={setPollingUnitValue}
+        setAddressValue={setAddressValue}
+        setImageSrc={setImageSrc}
+        setIDSrc={setIDSrc}
+        setOtp={setOtp}
+        pager={pagerView}
+        next={next}
+        setSelected={setSelected}
+        selected={selected}
+        setOtpIsSent={setOtpIsSent}
+        isOtpSent={isOtpSent}
+        SignUpUser={() => SignUpUser()}
+      />
       <View
         style={[
           styles.buttonWrapper,
@@ -134,40 +244,25 @@ export default function Registration({ navigation }) {
           },
         ]}
       >
-        <Indicator step={3} selected={selected} />
+        <Indicator step={2} selected={selected} width={14} />
         <View style={{ flexDirection: selected !== 1 ? "row" : null }}>
-          {selected > 1 ? (
-            <MaterialCommunityIcons
-              name="keyboard-backspace"
-              style={{ marginLeft: 3, flex: 1 }}
-              size={30}
-              color={colors.NATURAL_COLOR.black}
-              onPress={() => {
-                setSelected(selected - 1);
-              }}
-            />
-          ) : null}
-          {selected !== 3 ? (
+          {selected !== 2 ? (
             <TouchableOpacity
               style={[styles.button, { flex: selected !== 1 ? 2 : null }]}
               onPress={() => {
                 next(selected);
               }}
             >
-              <Text style={styles.buttonText}>Continue</Text>
+              <Text style={styles.buttonText}>Next</Text>
             </TouchableOpacity>
-          ) : selected === 3 ? null : (
-            <TouchableOpacity
-              style={[styles.button]}
-              onPress={() => {
-                AuthUser();
-              }}
-            >
-              <Text style={[styles.buttonText, { paddingHorizontal: "24.7%" }]}>
-                Create
-              </Text>
-            </TouchableOpacity>
-          )}
+          ) : <TouchableOpacity
+          style={[styles.button, { flex: selected !== 1 ? 2 : null }]}
+          onPress={() => {
+            SignUpUser()
+          }}
+        >
+          <Text style={styles.buttonText}>Submit</Text>
+        </TouchableOpacity>}
         </View>
       </View>
     </View>
@@ -187,9 +282,9 @@ const styles = StyleSheet.create({
   },
   button: {
     alignItems: "center",
-    backgroundColor: colors.SECONDARY_COLOR,
+    backgroundColor: colors.PRIMARY_COLOR,
     padding: 10,
-    borderRadius: 5,
+    borderRadius: 50,
   },
   buttonText: {
     color: colors.NATURAL_COLOR.white,
@@ -197,7 +292,3 @@ const styles = StyleSheet.create({
     fontWeight: "500",
   },
 });
-
-// const mapDispatchToProps = dispatch => bindActionCreators({signUp}, dispatch)
-
-// export default connect(null, mapDispatchToProps)(Registration);
