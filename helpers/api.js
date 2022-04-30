@@ -1,11 +1,11 @@
 // import axios from "axios";
 
-export const URL = "http://act.mainnetconnections.com/api/auth/";
-// const URL = "http://172.16.1.121:8000/api"
+// export const URL = "http://act.mainnetconnections.com/api/auth/";
+export const URL = "https://pacific-oasis-56690.herokuapp.com/api/auth/"
 
-// const instance = axios.create({
-//   baseURL: URL,
-// });
+export const instance = axios.create({
+  baseURL: URL,
+});
 
 // instance.interceptors.request.use((config) => {
 

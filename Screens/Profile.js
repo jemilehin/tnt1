@@ -1,67 +1,140 @@
-import React, { useEffect } from "react";
+import React from "react";
 import {
   View,
   Text,
   StyleSheet,
-  StatusBar,
   SafeAreaView,
   ScrollView,
   Button,
-  FlatList,
-  ActivityIndicator,
   TextInput,
   TouchableOpacity,
-  Image,
+  Image,ActivityIndicator,Modal,Dimensions
 } from "react-native";
 import { IconButton } from "react-native-paper";
+import { Snackbar } from 'react-native-paper';
+
 import { Picker } from "@react-native-picker/picker";
-import * as ImagePicker from "react-native-image-picker";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import * as ImagePicker from "expo-image-picker";
 
 import colors from "../Constant/Color.json";
-import { color } from "react-native/Libraries/Components/View/ReactNativeStyleAttributes";
+import { memberProfileUpdate } from "../Redux/Member/actions";
+import { Header } from "../Component/HeaderBack";
 
 export const MemberProfile = ({ navigation, route }) => {
   const [member, setMember] = React.useState({});
+  const [profileImg, setProfileImg] = React.useState(null);
+  const [snackMessage, setSnackMessage] = React.useState(false);
+  const [loading, setLoading] = React.useState(false)
+  const [isErr, setErr] = React.useState('Update Successful')
 
   React.useLayoutEffect(() => {
-    navigation.setOptions({
-      headerRight: () => (
-        <IconButton
-          onPress={() => console.log("hi")}
-          icon="shield-edit"
-          size={30}
-          color={colors.NATURAL_COLOR.white}
-        />
-      ),
-    });
+    // navigation.setOptions({
+    //   headerRight: () => (
+    //     <IconButton
+    //       onPress={() => console.log("hi")}
+    //       icon="shield-edit"
+    //       size={30}
+    //       color={colors.NATURAL_COLOR.white}
+    //     />
+    //   ),
+    // });
+
+    setMemberData()
+
   }, [navigation]);
 
+  const setMemberData = ()=>{
+    setMember(route.params.user)
+    setProfileImg(route.params.user.img)
+  }
+
+  Header("LEFT",navigation,colors.NATURAL_COLOR.white)
+
   const pickImage = async () => {
-    await ImagePicker.launchImageLibrary(options, (response) => {
-      console.log(response);
-      setResult({ ...result, image: response });
-    });
-    console.log("image:", response);
+    let pickerResult = await ImagePicker.launchImageLibraryAsync();
+    let result = pickerResult.uri;
+    if (!pickerResult.cancelled) {
+        setProfileImg(result)
+        setMember({...member, img: result})
+    } else {
+      console.log('response error')
+    }
   };
 
+  const updateProfile = () => {
+    memberProfileUpdate(member,member.id,callback,errCalback)
+    setLoading(true)
+  }
+
+  const writeData = async(data) => {
+    setMember(JSON.parse(data))
+    await AsyncStorage.setItem('user', data)
+    setTimeout(() => setSnackMessage(false), 1500);
+  }
+
+  const callback = (response) => {
+    if(response.status){
+      setLoading(false)
+      setSnackMessage(true)
+      writeData(response.config.data)
+    }
+  }
+
+  const errCalback = (err) => {
+    console.log('err',err)
+    setLoading(false)
+    setSnackMessage(true)
+    setErr('Update not successful')
+    error()
+  }
+
+  const error = () => {
+    setTimeout(() => setSnackMessage(false), 1500);
+  }
+
+
+
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView>
       <View style={[styles.innerContainer, styles.layoutStyle]}>
         <Text style={[styles.header, styles.fonts]}>
-          You can update some of your personal details
+          Profile
         </Text>
+        <View style={{top: Dimensions.get("screen").height * 0.01}}>
+            <View style={{
+                position: "relative",
+                top: 36,
+                left: "28%",
+                zIndex: 1000,
+                backgroundColor: "#C2CEF1",
+                width: '1%',
+                borderRadius: 50,
+                marginVertical: 0,
+                marginHorizontal: 0
+              }}>
+            <IconButton
+              onPress={() => pickImage()}
+              icon="camera"
+              size={18}
+              color={colors.NATURAL_COLOR.white}
+            />
+            </View>
+            <Image style={{ width: 132,
+    height: 132,
+    resizeMode: 'cover', borderRadius: 100}} source={profileImg === null ? require("../assets/images/profile-avatar.png") : {uri: profileImg}} />
+          </View>
+          <Text style={{ fontSize: 25 }}>ACT/64737/0001</Text>
       </View>
 
       <ScrollView
-        style={{ width: "100%", position: 'relative', top: 50 }}
-        showsHorizontalScrollIndicator={true}
-        contentContainerStyle={{ paddingBottom: 150 }}
+        style={[styles.container,{position: "relative", top: 5 }]}
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={{ paddingBottom: 350 }}
         contentOffset={{ x: 0, y: 50 }}
       >
         <View style={{ flex: 1, alignItems: "center" }}>
-          <Image source={require("../assets/images/profile-avatar.png")} />
-          <Text style={{fontSize: 25}}>ACT/64737/0001</Text>
-          <Button title="View ID card" color={colors.SECONDARY_COLOR} />
+          {/* <Button title="View ID card" color={colors.SECONDARY_COLOR} /> */}
         </View>
         <View style={[styles.inputContainer]}>
           <Text style={[styles.textAttribute, styles.fonts]}>Full name</Text>
@@ -69,7 +142,7 @@ export const MemberProfile = ({ navigation, route }) => {
             mode="outlined"
             outlineColor="transparent"
             style={[styles.input, styles.layoutStyle]}
-            defaultValue="Ajepe Ola"
+            defaultValue={member ? member.fullname : ''}
             editable={false}
             // onChangeText={(value) => setUser({ ...user, name: value })}
           />
@@ -102,12 +175,11 @@ export const MemberProfile = ({ navigation, route }) => {
             Mobile number
           </Text>
           <TextInput
-            defaultValue="80801311356"
-            editable={false}
+            defaultValue={member ? member.phone: ''}
             mode="outlined"
             outlineColor="transparent"
             style={[styles.input, styles.layoutStyle]}
-            onChangeText={(value) => setUser({ ...user, name: value })}
+            onChangeText={(value) => setMember({ ...member, phone: value })}
           />
         </View>
 
@@ -127,10 +199,9 @@ export const MemberProfile = ({ navigation, route }) => {
           <Text style={[styles.textAttribute, styles.fonts]}>Email</Text>
           <TextInput
             mode="outlined"
+            defaultValue={member ? member.email : ''}
             outlineColor="transparent"
             style={[styles.input, styles.layoutStyle]}
-            onChangeText={(value) => setUser({ ...user, name: value })}
-            defaultValue="ajepeola@gmail.com"
           />
         </View>
 
@@ -138,15 +209,13 @@ export const MemberProfile = ({ navigation, route }) => {
           <Text style={[styles.textAttribute, styles.fonts]}>Gender</Text>
           <Picker
             style={[styles.input, styles.layoutStyle]}
-            selectedValue="male"
             enabled={false}
             onValueChange={(itemValue, itemIndex) =>
               // setSelectedLanguage(itemValue)
               console.log("Gender is:", itemValue)
             }
           >
-            <Picker.Item label="Female" value="female" />
-            <Picker.Item label="Male" value="male" />
+            <Picker.Item label={member ? member.gender : ''}/>
           </Picker>
         </View>
 
@@ -157,11 +226,9 @@ export const MemberProfile = ({ navigation, route }) => {
             onValueChange={(itemValue, itemIndex) =>
               console.log("Gender is:", itemValue)
             }
-            selectedValue="lagos"
             enabled={false}
           >
-            <Picker.Item label="Select state" value="female" />
-            <Picker.Item label="Lagos" value="lagos" />
+            <Picker.Item label={member ? member.state : ''} />
           </Picker>
         </View>
 
@@ -172,11 +239,9 @@ export const MemberProfile = ({ navigation, route }) => {
             onValueChange={(itemValue, itemIndex) =>
               console.log("Gender is:", itemValue)
             }
-            selectedValue="ikeja"
             enabled={false}
           >
-            <Picker.Item label="Select LGA" />
-            <Picker.Item label="Ikeja" value="ikeja" />
+            <Picker.Item label={member ? member.lg: ''} />
           </Picker>
         </View>
 
@@ -187,11 +252,9 @@ export const MemberProfile = ({ navigation, route }) => {
             onValueChange={(itemValue, itemIndex) =>
               console.log("Gender is:", itemValue)
             }
-            selectedValue="alausa"
             enabled={false}
           >
-            <Picker.Item label="Select ward" />
-            <Picker.Item label="Alausa" value="alausa" />
+            <Picker.Item label={member ? member.ward : ''} />
           </Picker>
         </View>
 
@@ -202,39 +265,25 @@ export const MemberProfile = ({ navigation, route }) => {
             onValueChange={(itemValue, itemIndex) =>
               console.log("Gender is:", itemValue)
             }
-            selectedValue="secreteriat"
             enabled={false}
           >
-            <Picker.Item label="Select polling unit" />
-            <Picker.Item label="Secreteriat" value="secreteriat" />
+            <Picker.Item label={member ? member.pollingUnit: ''}    />
           </Picker>
         </View>
 
         <View style={[styles.inputContainer]}>
           <Text style={[styles.textAttribute, styles.fonts]}>Address</Text>
           <TextInput
-            defaultValue="1 Obalende close off Ajepe Street"
-            editable={false}
+            defaultValue={member.address}
+            // editable={false}
             style={[styles.input, styles.layoutStyle]}
-            onChangeText={(value) => setUser({ ...user, name: value })}
+            onChangeText={(value) => setMember({ ...member, address: value })}
           />
         </View>
 
         <View style={styles.separator}></View>
 
-        <View style={{ top: 40 }}>
-          <Text
-            style={[styles.textAttribute, styles.fonts, { marginBottom: 4 }]}
-          >
-            Upload image
-          </Text>
-          <TouchableOpacity
-            style={[styles.buttonPicker, { marginBottom: 10 }]}
-            onPress={pickImage}
-          >
-            <Text style={styles.touchText}>Upload</Text>
-          </TouchableOpacity>
-
+        {/* <View style={{ top: 40 }}>
           <Text
             style={[styles.textAttribute, styles.fonts, { marginBottom: 4 }]}
           >
@@ -243,17 +292,24 @@ export const MemberProfile = ({ navigation, route }) => {
           <TouchableOpacity style={styles.buttonPicker} onPress={pickImage}>
             <Text style={styles.touchText}>Upload</Text>
           </TouchableOpacity>
-        </View>
+        </View> */}
 
         <View>
           <TouchableOpacity
             style={[styles.button]}
-            onPress={() => console.log("not getting text input yet")}
+            onPress={() => updateProfile()}
           >
             <Text style={styles.buttonText}>Update</Text>
           </TouchableOpacity>
         </View>
       </ScrollView>
+      {loading ? <ActivityIndicator style={{top: Dimensions.get('screen').height/1.5, position: 'absolute', left: "45%"}} color={colors.SECONDARY_COLOR_VARIANT} size="large" /> : <Snackbar
+          visible={snackMessage}
+          onDismiss={() => setSnackMessage(false)}
+          style={{backgroundColor: colors.TEXT_BUTTON_COLOR}}
+        >
+          <View><Text>{isErr}</Text></View>
+        </Snackbar>}
     </SafeAreaView>
   );
 };
@@ -263,7 +319,7 @@ const styles = StyleSheet.create({
     position: "relative",
   },
   container: {
-    flex: 1,
+    // flex: 1,
     // alignItems: "center",
     marginLeft: 10,
     marginRight: 10,
@@ -272,6 +328,8 @@ const styles = StyleSheet.create({
     fontSize: 16,
     marginBottom: -2,
     textAlign: "left",
+    color: colors.NATURAL_COLOR.white,
+    fontWeight: "bold"
   },
   fonts: {
     fontWeight: "600",
@@ -322,7 +380,14 @@ const styles = StyleSheet.create({
   },
   innerContainer: {
     flexDirection: "column",
-    top: 30,
-    zIndex: 100
-  }
+    // top: "3%",
+    zIndex: 100,
+    justifyContent: "center",
+    alignItems: "center",
+    borderBottomLeftRadius: 20,
+    borderBottomRightRadius: 20,
+    backgroundColor: colors.PRIMARY_COLOR,
+    width: "100%",
+    paddingTop: "10%"
+  },
 });
