@@ -9,7 +9,7 @@ import { URL } from "../../helpers/api";
 import { twilloBaseUrl } from "../../helpers/twilloApi/twillo";
 
 export const SignUpRequest = async (formdata, callback, errorCallback) => {
-  console.log(formdata);
+  // console.log(formdata);
   var requestOptions = {
     method: "POST",
     body: formdata,
@@ -24,18 +24,34 @@ export const SignUpRequest = async (formdata, callback, errorCallback) => {
 };
 
 export const SignInRequest = async (email, password, callback, errCallback) => {
-  console.log({ email, password });
-  await api
-    .post("login")
-    .then((response) => {
-      if (response.status) {
-        console.log(response.data);
-        callback(response.data);
-      }
-    })
-    .catch((e) => {
-      errCallback(e);
-    });
+  // console.log({ email, password });
+  // await api
+  //   .post("login")
+  //   .then((response) => {
+  //     if (response.status) {
+  //       console.log(response.data);
+  //       callback(response.data);
+  //     }
+  //   })
+  //   .catch((e) => {
+  //     errCallback(e);
+  //   });
+  const myHeaders = new Headers();
+  const credentials = JSON.stringify({
+    "email": email,
+    "password": password
+  });
+
+  const requestOptions = {
+    method: 'POST',
+    headers: myHeaders,
+    body: credentials,
+    redirect: 'follow'
+  };
+  fetch(`${URL}login`, requestOptions)
+    .then(response => response.text())
+    .then(result => callback(JSON.parse(result)))
+    .catch(error => errCallback(error));
 };
 
 export const memberProfileUpdate = async (
@@ -44,13 +60,8 @@ export const memberProfileUpdate = async (
   callback,
   errorCallback
 ) => {
-  await api
-    .put(`update/${id}`, data)
-    .then((response) => {
-      if (response.status) {
-        callback(response);
-      }
-    })
+  await api.put(`update/${id}`, data)
+    .then(response => callback(response))
     .catch((e) => {
       errorCallback(e);
     });

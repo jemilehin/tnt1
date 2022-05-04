@@ -16,7 +16,6 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 
 import colors from "../../Constant/Color.json";
 import {
-  CheckVerification,
   SignUpRequest,
   StartVerification,
 } from "../../Redux/Member/actions";
@@ -34,8 +33,6 @@ export default function LoginPassword(props) {
   const [loading, setLoading] = React.useState(false);
 
   const { signUp } = React.useContext(AuthContext);
-
-  let OTPLenght = String(OTP).length;
 
   //  async () => {
   //   try {
@@ -148,29 +145,29 @@ export default function LoginPassword(props) {
   //   }
   // };
 
-  const deleteAsyncData = async () => {
-    let keys;
-    try {
-      keys = await AsyncStorage.multiGet([
-        "state",
-        "lga",
-        "ward",
-        "polling_unit",
-        "address",
-        "profile_img",
-        "id_card",
-        "fullname",
-        "mobile_num",
-        "email",
-        "gender",
-        "password",
-      ]);
-      await AsyncStorage.multiRemove(keys);
-    } catch (e) {
-      // read key error
-      console.log(e);
-    }
-  };
+  // const deleteAsyncData = async () => {
+  //   let keys;
+  //   try {
+  //     keys = await AsyncStorage.multiGet([
+  //       "state",
+  //       "lga",
+  //       "ward",
+  //       "polling_unit",
+  //       "address",
+  //       "profile_img",
+  //       "id_card",
+  //       "fullname",
+  //       "mobile_num",
+  //       "email",
+  //       "gender",
+  //       "password",
+  //     ]);
+  //     await AsyncStorage.multiRemove(keys);
+  //   } catch (e) {
+  //     // read key error
+  //     console.log(e);
+  //   }
+  // };
 
   const callback = (response) => {
     if (response.message === "User successfully registered") {
@@ -192,29 +189,17 @@ export default function LoginPassword(props) {
     setLoading(false);
   };
 
-  const VerifyCallback = (response) => {
-    console.log("success", response.success);
-    if (response.success) {
-      SignUpRequest(formData, callback, errorCallback);
-      setVerification(true);
-    } else {
-      setVerification(false);
-      setLoading(false);
-      setOTP("");
-    }
-  };
-
-  const smsCallback = (response) => {
-    // console.log(response.success);
-    // To-do: when response is successfull setOtpIsSent to "true"
-    if (response.success) {
-      setOtpIsSent(true);
-    } else {
-      Toast.show("Please provide a valid mobile number.", {
-        duration: Toast.durations.SHORT,
-      });
-    }
-  };
+  // const smsCallback = (response) => {
+  //   // console.log(response.success);
+  //   // To-do: when response is successfull setOtpIsSent to "true"
+  //   if (response.success) {
+  //     setOtpIsSent(true);
+  //   } else {
+  //     Toast.show("Please provide a valid mobile number.", {
+  //       duration: Toast.durations.SHORT,
+  //     });
+  //   }
+  // };
 
   const errcallback = (response) => {
     // To-do: when response is unsuccessfull setOtpIsSent to "false"
@@ -231,7 +216,7 @@ export default function LoginPassword(props) {
   // selected === 2 ? StartVerification(`+234${user.phone}`, smsCallback, errcallback) : null
 
   const ResendOtp = () => {
-    if (user.password === null || String(user.password).length < 6) {
+    if (props.password === "") {
       return Toast.show("Password field is empty.", {
         duration: Toast.durations.SHORT,
       });
@@ -241,7 +226,7 @@ export default function LoginPassword(props) {
   };
 
   return (
-    <View>
+    <View style={{height: "100%", position: "relative"}}>
       <View style={styles.otpSection}>
         <Text
           style={[
@@ -261,7 +246,7 @@ export default function LoginPassword(props) {
         </Text>
       </View>
 
-      <View style={{ position: "relative", top: "70%" }}>
+      <View style={{ position: "relative", top: "25%" }}>
         {loading ? (
           <ActivityIndicator
             style={{ top: -35, position: "absolute", left: "45%" }}
@@ -281,10 +266,9 @@ export default function LoginPassword(props) {
         </Text>
         <TextInput
           mode="outlined"
-          value={String(user.password).length < 6 ? "" : OTP}
+          value={props.OTP}
           outlineColor="transparent"
           keyboardType="numeric"
-          // editable={OTPLenght === 6 ? false : true}
           style={[styles.input, styles.layoutStyle]}
           onChangeText={(otp) => {
               props.setOtp(otp);
@@ -302,18 +286,18 @@ export default function LoginPassword(props) {
           <Text
             style={{
               color:
-                isOtpSent === null
+                props.isOtpSent === null
                   ? "grey"
-                  : !isOtpSent
+                  : !props.isOtpSent
                   ? colors.TEXT_BUTTON_COLOR
                   : "grey",
               fontSize: 15,
               padding: 3,
             }}
             onPress={() => {
-              isOtpSent === null
+              props.isOtpSent === null
                 ? console.log("pressed")
-                : isOtpSent
+                : props.isOtpSent
                 ? alert("OTP has already being sent")
                 : ResendOtp();
             }}
@@ -322,11 +306,11 @@ export default function LoginPassword(props) {
           </Text>
         </View>
       </View>
+      <View style={{top: "58%", position: "relative"}}>
       <Indicator
         styles={{
           flexDirection: "row",
           justifyContent: "center",
-          top: Dimensions.get("screen").height * 0.51,
         }}
         step={3}
         selected={props.selected+1}
@@ -342,10 +326,10 @@ export default function LoginPassword(props) {
               fontWeight: "500",
             }}
           >
-            {!props.isOtpSent ? "Verify" : "Continue"}
+            {!props.isOtpSent ? "Send Code" : "Continue"}
           </Text>
         </TouchableOpacity>
-      ) : null}
+      ) : null}</View>
     </View>
   );
 }
@@ -386,17 +370,14 @@ const styles = StyleSheet.create({
   },
   otpSection: {
     position: "relative",
-    top: "40%",
+    top: "15%",
   },
   otpTextCenter: {
     textAlign: "center",
   },
   button: {
+    marginTop: 10,
     position: "relative",
-    top:
-      Dimensions.get("screen").height < 650
-        ? 270
-        : Dimensions.get("screen").height / 1.86,
     // left: "25%",
     // width: "70%",
     // height: 40,

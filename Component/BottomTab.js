@@ -35,7 +35,7 @@ export const BottomNavigation = ({ navigation,route }) => {
           color={colors.NATURAL_COLOR.white}
         />
       ),
-      title: user !== {} ? "Welcome "+ user.fullname: null,
+      title: "Welcome back"
     });
   }, [user])
 

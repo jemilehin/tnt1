@@ -36,14 +36,15 @@ export default function SignIn({ navigation }) {
   }
 
   const callback = async(response) => {
-      setProgress(false)
-      signIn()
-      await AsyncStorage.setItem('user', JSON.stringify(response.user))
+    console.log(response)
+    setProgress(false)
+    signIn()
+      // await AsyncStorage.setItem('user', JSON.stringify(response.user))
   }
 
   const errorCallback = (err) => {
-    alert('Bad network request')
     setProgress(false)
+    alert('Bad network request')
     console.log(err)
   }
 
