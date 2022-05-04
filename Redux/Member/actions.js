@@ -9,7 +9,7 @@ import { URL } from "../../helpers/api";
 import { twilloBaseUrl } from "../../helpers/twilloApi/twillo";
 
 export const SignUpRequest = async (formdata, callback, errorCallback) => {
-  // console.log(formdata);
+  console.log(formdata);
   var requestOptions = {
     method: "POST",
     body: formdata,

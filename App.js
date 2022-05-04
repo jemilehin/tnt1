@@ -23,12 +23,12 @@ import ChatRoom from "./Screens/ChatRoom";
 import { LandingScreen } from "./Screens/SetUpScreen";
 
 // Firebase references
-const app = getApp();
+// const app = getApp();
 
 // Double-check that we can run the example
-if (!app?.options || Platform.OS === 'web') {
-  throw new Error('This example only works on Android or iOS, and requires a valid Firebase config.');
-}
+// if (!app?.options || Platform.OS === 'web') {
+//   throw new Error('This example only works on Android or iOS, and requires a valid Firebase config.');
+// }
 
 const Stack = createNativeStackNavigator();
 // const Fonts = {

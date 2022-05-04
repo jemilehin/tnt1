@@ -1,7 +1,7 @@
-// import axios from "axios";
+import axios from "axios";
 
 // export const URL = "http://act.mainnetconnections.com/api/auth/";
-export const URL = "https://pacific-oasis-56690.herokuapp.com/api/auth/"
+export const URL = "http://renarddrakeintl.com/api/auth/"
 
 export const instance = axios.create({
   baseURL: URL,

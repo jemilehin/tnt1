@@ -79,19 +79,19 @@ export default function LoginPassword(props) {
 
   // selected === 2 ? callLocalStorage() : null
 
-  const formData = new FormData();
-  formData.append("fullname", user.fullname);
-  formData.append("state", user.state);
-  formData.append("phone", user.phone);
-  formData.append("email", user.email);
-  formData.append("gender", user.gender);
-  formData.append("lg", user.lg);
-  formData.append("ward", user.ward);
-  formData.append("pollingUnit", user.polling_unit);
-  formData.append("address", user.address);
-  formData.append("img", user.img);
-  formData.append("validId", user.validId);
-  formData.append("password", user.password);
+  // const formData = new FormData();
+  // formData.append("fullname", user.fullname);
+  // formData.append("state", user.state);
+  // formData.append("phone", user.phone);
+  // formData.append("email", user.email);
+  // formData.append("gender", user.gender);
+  // formData.append("lg", user.lg);
+  // formData.append("ward", user.ward);
+  // formData.append("pollingUnit", user.polling_unit);
+  // formData.append("address", user.address);
+  // formData.append("img", user.img);
+  // formData.append("validId", user.validId);
+  // formData.append("password", user.password);
 
   // const SignUpUser = () => {
   //   if (user.fullname === null) {
@@ -206,6 +206,7 @@ export default function LoginPassword(props) {
 
   const smsCallback = (response) => {
     // console.log(response.success);
+    // To-do: when response is successfull setOtpIsSent to "true"
     if (response.success) {
       setOtpIsSent(true);
     } else {
@@ -216,6 +217,7 @@ export default function LoginPassword(props) {
   };
 
   const errcallback = (response) => {
+    // To-do: when response is unsuccessfull setOtpIsSent to "false"
     console.log("error", response);
     Toast.show("Bad network.", {
       duration: Toast.durations.SHORT,
