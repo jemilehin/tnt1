@@ -7,7 +7,8 @@ import {
   StyleSheet,
   Text,
   ScrollView,
-  SafeAreaView,KeyboardAvoidingView,Keyboard
+  SafeAreaView,KeyboardAvoidingView,Keyboard,
+  ActivityIndicator
 } from "react-native";
 import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
 import PagerView from "react-native-pager-view";
@@ -54,9 +55,9 @@ const FormPages = (props) => {
           loading={props.loading}
         />
       </View>
-      {/* <View key="3">
+      <View key="3">
         <LoginPassword isOtpSent={props.isOtpSent} setOtpIsSent={props.setOtpIsSent} SignUpUser={props.SignUpUser} setOtp={props.setOtp} selected={props.selected - 1} />
-      </View> */}
+      </View>
     </PagerView>
   );
 };
@@ -90,8 +91,8 @@ export default function Registration({ navigation }) {
   const [isOtpSent, setOtpIsSent] = React.useState(false);
   const pagerView = React.useRef(0);
   const [loading, setLoading] = React.useState(false);
+  const [isCodeVerified, setCodeIsVerified] = React.useState(false)
 
-  // console.log(OTP)
   const formData = new FormData();
   formData.append("fullname", fullname);
   formData.append("state", stateValue);
@@ -107,32 +108,12 @@ export default function Registration({ navigation }) {
   formData.append("password", password);
   formData.append("password_confirmation", password)
 
-  const callback = (response) => {
-    console.log("back",response)
-    // if (response.message === "User successfully registered") {
-    //   signUp();
-    //   setLoading(false);
-    // }else
-    //   setLoading(false);
-    //   Toast.show("Registration unsuccessfull", {
-    //     duration: Toast.durations.SHORT,
-    //   })
-  };
-
   const passUser = async (data) => {
     console.log("dataUser", data);
     // await AsyncStorage.setItem("user", data);
   };
 
-  const errorCallback = (response) => {
-    console.log("response error:", response);
-    setLoading(false);
-    // alert("Ba")
-  };
-  // console.log(formData)
-
   const SignUpUser = () => {
-    // console.log("here")
     if (fullname === "") {
       return Toast.show("Your fullname is required", {
         duration: Toast.durations.SHORT,
@@ -186,44 +167,89 @@ export default function Registration({ navigation }) {
         duration: Toast.durations.SHORT,
       });
     } else {
-      setLoading(true)
-      SignUpRequest(formData, callback, errorCallback);
+      // SignUpRequest(formData, callback, errorCallback);
       // ToDo: start verification if isOtpSent is "false"
       // then is smsCallback setOTPSent to "true" to overide
-      // condition.
-      // if (!isOtpSent) {
-      //   StartVerification(`+234${number}`, smsCallback, errcallback)
-      //   return Toast.show("Verify mobile number.", {
-      //     duration: Toast.durations.SHORT,
-      //   });
-      // } else {
-      //   if (isOtpSent) {
-      //     CheckVerification(`+234${number}`, OTP, VerifyCallback);
-      //     setLoading(true);
-      //   } else {
-      //     return Toast.show(
-      //       "Type the 6 digit OTP code sent to your phone number",
-      //       {
-      //         duration: Toast.durations.SHORT,
-      //       }
-      //     );
-      //   }
-      // }
+      // condition
+      setLoading(true)
+      if (!isOtpSent) {
+        // setLoading(true)
+        StartVerification(`+234${number}`, smsCallback, errCallback)
+         Toast.show("Wait while a code is being sent", {
+              duration: Toast.durations.LONG,
+         })
+      } else {
+        if(!isCodeVerified){
+          CheckVerification(`+234${number}`, OTP, VerifyCallback);
+          // setLoading(true);
+          Toast.show("Verifying Code!", {
+            duration: Toast.durations.SHORT,
+       })
+        }else{
+          // setLoading(true);
+          SignUpRequest(formData, callback, errorCallback)
+        }
+          
+      }
     }
+  };
+
+  // callback response if otp was successfull sent
+  const smsCallback = (response) => {
+    setOtpIsSent(response)
+    setLoading(false);
+  };
+
+  // callback response when there is error sending otp code
+  const errCallback = (response) => {
+    Toast.show(String(response), {
+      duration: Toast.durations.LONG
+    })
+    setOtpIsSent(false)
+    setLoading(false);
   };
 
   const next = (index) => {
     pagerView.current.setPage(index);
   };
 
-  // const VerifyCallback = (response) => {
-  //   console.log("success", response.success);
-  //   if (response.success) {
-  //     SignUpRequest(formData, callback, errorCallback);
-  //   } else {
-  //     setLoading(false);
-  //   }
-  // };
+  const callback = (response) => {
+    setLoading(false)
+    signUp();
+  };
+
+  const errorCallback = (response) => {
+    setLoading(false);
+    if(response.message === "500"){
+    Toast.show("Email has been used", {
+      duration: Toast.durations.LONG, position: Dimensions.get("screen").height*0.7
+    });
+    }else{
+      Toast.show("Error connecting to server", {
+        duration: Toast.durations.LONG,position: Dimensions.get("screen").height*0.7
+      });
+    }
+  };
+
+  // callback that verify input code
+  const VerifyCallback = (response) => {
+    if (response.success) {
+      SignUpRequest(formData, callback, errorCallback);
+      setCodeIsVerified(true)
+    } else {
+      setLoading(false);
+      if(OTP.length !== 6){
+        Toast.show(String(response.message),{
+          duration: Toast.durations.LONG
+        })
+      }else{
+        setOtpIsSent(false)
+        Toast.show("Try resend OTP code",{
+          duration: Toast.durations.LONG
+        })
+      }
+    }
+  };
 
   Header("LEFT", navigation, colors.PRIMARY_COLOR);
   const [keyboardStatus, setKeyboardStatus] = React.useState(false);
@@ -239,27 +265,6 @@ export default function Registration({ navigation }) {
   },[])
   const _keyboardDidShow = () => setKeyboardStatus(true);
   const _keyboardDidHide = () => setKeyboardStatus(false);
-
-  // const smsCallback = (response) => {
-  //   // console.log(response.success);
-  //   // To-do: when response is successfull setOtpIsSent to "true"
-  //   if (response.success) {
-  //     setOtpIsSent(true);
-  //     console.log("otp",response)
-  //   } else {
-  //     Toast.show("Please provide a valid mobile number.", {
-  //       duration: Toast.durations.SHORT,
-  //     });
-  //   }
-  // };
-
-  const errcallback = (response) => {
-    // To-do: when response is unsuccessfull setOtpIsSent to "false"
-    console.log("error", response);
-    Toast.show("Bad network.", {
-      duration: Toast.durations.SHORT,
-    });
-  };
 
   return (
     <View style={styles.container}>
@@ -286,6 +291,14 @@ export default function Registration({ navigation }) {
         SignUpUser={() => SignUpUser()}
         loading={loading}
       />
+      
+      {loading ? (
+          <ActivityIndicator
+            style={{ top:  Dimensions.get("screen").height*0.40, position: "absolute", left: Dimensions.get("screen").width*0.44}}
+            color={colors.SECONDARY_COLOR_VARIANT}
+            size="large"
+          />
+        ) : null}
       <View
         style={[
           styles.buttonWrapper,
@@ -294,25 +307,27 @@ export default function Registration({ navigation }) {
           },
         ]}
       >
-        {keyboardStatus ? null : <><Indicator step={2} selected={selected} width={14} />
+        {keyboardStatus ? null : <><Indicator step={3} selected={selected} width={14} />
         <View>
-          {selected !== 2 ? (
+          {selected !== 3 ? (
             <TouchableOpacity
-              style={[styles.button, { flex: selected !== 2 ? null : 1  }]}
+              style={[styles.button, { flex: selected !== 3 ? null : 1  }]}
               onPress={() => {
                 next(selected);
               }}
             >
               <Text style={styles.buttonText}>Next</Text>
             </TouchableOpacity>
-          ) : <TouchableOpacity
-          style={[styles.button]}
-          onPress={() => {
-            SignUpUser()
-          }}
-        >
-          <Text style={styles.buttonText}>Submit</Text>
-        </TouchableOpacity>}
+          ) : null
+        //   <TouchableOpacity
+        //   style={[styles.button]}
+        //   onPress={() => {
+        //     SignUpUser()
+        //   }}
+        // >
+        //   <Text style={styles.buttonText}>Submit</Text>
+        // </TouchableOpacity>
+        }
         </View></>}
       </View>
     </View>

@@ -20,28 +20,6 @@ export const BasicInfo = (props) => {
   const [email, setEmailValue] = React.useState("")
   const [password, setPasswordValue] = React.useState("")
 
-  // React.useEffect(async () => {
-  //   try {
-  //     const fullname = await AsyncStorage.getItem("fullname");
-  //     const mobile_num = await AsyncStorage.getItem("mobile_num");
-  //     const email = await AsyncStorage.getItem("email");
-  //     const gender = await AsyncStorage.getItem("gender");
-  //     const password = await AsyncStorage.getItem("password")
-  //     console.log(password)
-  //     setUser({
-  //       ...user,
-  //       fullname: fullname,
-  //       mobile_num: mobile_num,
-  //       email: email,
-  //       gender: gender,
-  //       password: password
-  //     });
-  //     setGender(gender);
-  //   } catch (e) {
-  //     console.log(e);
-  //   }
-  // }, []);
-
   return (
     <KeyboardAwareScrollView
       resetScrollToCoords={{ x: 0, y: 0 }}
@@ -62,16 +40,11 @@ export const BasicInfo = (props) => {
           mode="outlined"
           outlineColor="transparent"
           defaultValue={fullname}
-          placeholder="Enter your surname first"
+          placeholder="Surname first"
           style={[styles.input, styles.layoutStyle]}
           onChangeText={(value) => {
             props.setFullname(value)
             setfullnameValue(value)
-            // try {
-            //   await AsyncStorage.setItem("fullname", value);
-            // } catch (e) {
-            //   console.log(e);
-            // }
           }}
         />
       </View>
@@ -83,6 +56,7 @@ export const BasicInfo = (props) => {
           outlineColor="transparent"
           textContentType="telephoneNumber"
           defaultValue={mobile_num}
+          maxLength={11}
           keyboardType="phone-pad"
           style={[styles.input, styles.layoutStyle]}
           onChangeText={(value) => {
@@ -109,11 +83,6 @@ export const BasicInfo = (props) => {
           onChangeText={(value) => {
             props.setEmail(value)
             setEmailValue(value)
-            // try {
-            //   await AsyncStorage.setItem("email", value);
-            // } catch (e) {
-            //   console.log(e);
-            // }
           }}
         />
       </View>
@@ -124,18 +93,13 @@ export const BasicInfo = (props) => {
           mode="outlined"
           outlineColor="transparent"
           defaultValue={password}
-          // secureTextEntry={user.password !== null ? true : false}
+          maxLength={11}
           style={[styles.input, styles.layoutStyle]}
           onChangeText={(value) => {
             props.setPassword(value)
             setPasswordValue(value)
-            // try {
-            //   await AsyncStorage.setItem("password", value);
-            // } catch (e) {
-            //   console.log(e);
-            // }
           }}
-          placeholder="Not less than 6 character"
+          placeholder="Min. of 6 characters"
         />
       </View>
 
@@ -154,7 +118,7 @@ export const BasicInfo = (props) => {
             // }
           }}
         >
-          <Picker.Item label="Select gender" value="" />
+          <Picker.Item label="Select Gender" value="" />
           <Picker.Item label="Female" value="female" />
           <Picker.Item label="Male" value="male" />
         </Picker>

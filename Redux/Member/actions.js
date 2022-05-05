@@ -18,40 +18,41 @@ export const SignUpRequest = async (formdata, callback, errorCallback) => {
   };
 
   fetch(`${URL}register`, requestOptions)
-    .then((response) => response.text())
-    .then((result) => callback(JSON.parse(result)))
+    .then((response) => {
+      if (response.status === 200) {
+        return response.json();
+      } else {
+        throw new Error(response.status);
+      }
+    })
+    .then((result) => callback(result))
     .catch((error) => errorCallback(error));
 };
 
 export const SignInRequest = async (email, password, callback, errCallback) => {
-  // console.log({ email, password });
-  // await api
-  //   .post("login")
-  //   .then((response) => {
-  //     if (response.status) {
-  //       console.log(response.data);
-  //       callback(response.data);
-  //     }
-  //   })
-  //   .catch((e) => {
-  //     errCallback(e);
-  //   });
   const myHeaders = new Headers();
+  myHeaders.append("Content-Type", "application/json");
   const credentials = JSON.stringify({
-    "email": email,
-    "password": password
+    email: email,
+    password: password,
   });
 
   const requestOptions = {
-    method: 'POST',
+    method: "POST",
     headers: myHeaders,
     body: credentials,
-    redirect: 'follow'
+    redirect: "follow",
   };
   fetch(`${URL}login`, requestOptions)
-    .then(response => response.text())
-    .then(result => callback(JSON.parse(result)))
-    .catch(error => errCallback(error));
+    .then((response) => {
+      if (response.status === 200) {
+        return response.json();
+      } else {
+        throw new Error(response.status);
+      }
+    })
+    .then((result) => callback(result))
+    .catch((error) => errCallback(error.message));
 };
 
 export const memberProfileUpdate = async (
@@ -60,8 +61,9 @@ export const memberProfileUpdate = async (
   callback,
   errorCallback
 ) => {
-  await api.put(`update/${id}`, data)
-    .then(response => callback(response))
+  await api
+    .put(`update/${id}`, data)
+    .then((response) => callback(response))
     .catch((e) => {
       errorCallback(e);
     });
@@ -84,9 +86,15 @@ export const StartVerification = async (phoneNumber, callback, errCallback) => {
     `${twilloBaseUrl}start-verify?to=${phoneNumber}&channel=sms`,
     data
   )
-    .then((response) => response.text())
-    .then((result) => callback(JSON.parse(result)))
-    .catch((error) => errCallback(error));
+    .then((response) =>  response.json())
+    .then(result => {
+      if(result.success){
+        callback(result)
+      }else{
+        throw new Error(`invalid mobile number ${phoneNumber}`)
+      }
+    })
+    .catch(error => errCallback(error));
 };
 
 export const CheckVerification = (phoneNumber, code, callback) => {
@@ -104,19 +112,19 @@ export const CheckVerification = (phoneNumber, code, callback) => {
   };
 
   fetch(`${twilloBaseUrl}check-verify`, data)
-    .then((response) => response.text())
+    .then((response) => response.json())
     .then((result) => {
-      callback(JSON.parse(result));
+      callback(result);
     })
     .catch((error) => console.log("err", error));
 };
 
-export const sendMessage = (title,slug,content,callback) => {
+export const sendMessage = (title, slug, content, callback) => {
   var formdata = new FormData();
   formdata.append("title", title);
   formdata.append("slug", slug);
   formdata.append("content", content);
-  console.log(title,slug,content)
+  console.log(title, slug, content);
 
   var requestOptions = {
     method: "POST",
@@ -124,10 +132,7 @@ export const sendMessage = (title,slug,content,callback) => {
     redirect: "follow",
   };
 
-  fetch(
-    `${URL}sendMessage`,
-    requestOptions
-  )
+  fetch(`${URL}sendMessage`, requestOptions)
     .then((response) => response.status)
     .then((result) => callback(result))
     .catch((error) => console.log("error", error));

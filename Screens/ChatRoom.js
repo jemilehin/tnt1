@@ -288,7 +288,7 @@ const ChatRoom = ({ navigation }) => {
                 </TouchableOpacity>
               </View>
               <TouchableOpacity
-                onPress={() => sendMessage("not","not",msgInput,callback)}
+                onPress={() => sendMessage("Sent to Admin","not",msgInput,callback)}
                 activeOpacity={0.5}
               >
                 <IconButton

@@ -12,7 +12,7 @@ import {
   ToastAndroid,
   TextInput,
 } from "react-native";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+// import AsyncStorage from "@react-native-async-storage/async-storage";
 
 import colors from "../../Constant/Color.json";
 import {
@@ -34,195 +34,32 @@ export default function LoginPassword(props) {
 
   const { signUp } = React.useContext(AuthContext);
 
-  //  async () => {
-  //   try {
-  //     const state = await AsyncStorage.getItem("state");
-  //     const lga = await AsyncStorage.getItem("lga");
-  //     const ward = await AsyncStorage.getItem("ward");
-  //     const polling_unit = await AsyncStorage.getItem("polling_unit");
-  //     const address = await AsyncStorage.getItem("address");
-  //     const profile = await AsyncStorage.getItem("profile_img");
-  //     const id_card = await AsyncStorage.getItem("id_card");
-  //     const fullname = await AsyncStorage.getItem("fullname");
-  //     const mobile_num = await AsyncStorage.getItem("mobile_num");
-  //     const email = await AsyncStorage.getItem("email");
-  //     const gender = await AsyncStorage.getItem("gender");
-  //     const password = await AsyncStorage.getItem("password");
-  //     console.log(mobile_num)
-
-  //     setProfileImage(profile);
-  //     setValidid(id_card);
-  //     setUser({
-  //       ...user,
-  //       fullname: fullname,
-  //       phone: mobile_num,
-  //       email: email,
-  //       gender: gender,
-  //       state: state,
-  //       lg: lga,
-  //       ward: ward,
-  //       polling_unit: polling_unit,
-  //       address: address,
-  //       img: profile,
-  //       validId: id_card,
-  //       password: password,
-  //     });
-  //   } catch (e) {
-  //     console.log(e);
-  //   }
-  // };
-
-  // console.log(selected)
-
-  // selected === 2 ? callLocalStorage() : null
-
-  // const formData = new FormData();
-  // formData.append("fullname", user.fullname);
-  // formData.append("state", user.state);
-  // formData.append("phone", user.phone);
-  // formData.append("email", user.email);
-  // formData.append("gender", user.gender);
-  // formData.append("lg", user.lg);
-  // formData.append("ward", user.ward);
-  // formData.append("pollingUnit", user.polling_unit);
-  // formData.append("address", user.address);
-  // formData.append("img", user.img);
-  // formData.append("validId", user.validId);
-  // formData.append("password", user.password);
-
-  // const SignUpUser = () => {
-  //   if (user.fullname === null) {
-  //     return ToastAndroid.show("Your fullname is required", ToastAndroid.SHORT);
-  //   }
-  //   if (user.phone === null) {
-  //     return ToastAndroid.show(
-  //       "Your mobile number is required",
-  //       ToastAndroid.SHORT
-  //     );
-  //   }
-  //   if (user.email === null) {
-  //     return ToastAndroid.show("Your email is required", ToastAndroid.SHORT);
-  //   }
-  //   if (user.gender === null) {
-  //     return ToastAndroid.show("Your gender is required", ToastAndroid.SHORT);
-  //   }
-  //   // if (user.state === null) {
-  //   //   return ToastAndroid.show("State is required", ToastAndroid.SHORT);
-  //   // }
-  //   // if (user.lg === null) {
-  //   //   return ToastAndroid.show("LGA is required", ToastAndroid.SHORT);
-  //   // }
-  //   // if (user.ward === null) {
-  //   //   return ToastAndroid.show("Your ward is required", ToastAndroid.SHORT);
-  //   // }
-  //   // if (user.polling_unit === null) {
-  //   //   return ToastAndroid.show("Polling unit is required", ToastAndroid.SHORT);
-  //   // }
-  //   if (user.address === null) {
-  //     return ToastAndroid.show("Your address is required", ToastAndroid.SHORT);
-  //   }
-  //   if (user.password === null) {
-  //     return ToastAndroid.show("Set a password", ToastAndroid.SHORT);
-  //   } else {
-  //     if (!isOtpSent) {
-  //       StartVerification(`+234${user.phone}`, smsCallback, errcallback)
-  //       // return Toast.show("Verify mobile number.", {
-  //       //   duration: Toast.durations.SHORT,
-  //       // });
-  //     } else {
-  //       if (OTPLenght === 6) {
-  //         CheckVerification(`+234${user.phone}`, OTP, VerifyCallback);
-  //         setLoading(true);
-  //       } else {
-  //         return Toast.show(
-  //           "Type the 6 digit OTP code sent to your phone number",
-  //           {
-  //             duration: Toast.durations.SHORT,
-  //           }
-  //         );
-  //       }
-  //     }
-  //   }
-  // };
-
-  // const deleteAsyncData = async () => {
-  //   let keys;
-  //   try {
-  //     keys = await AsyncStorage.multiGet([
-  //       "state",
-  //       "lga",
-  //       "ward",
-  //       "polling_unit",
-  //       "address",
-  //       "profile_img",
-  //       "id_card",
-  //       "fullname",
-  //       "mobile_num",
-  //       "email",
-  //       "gender",
-  //       "password",
-  //     ]);
-  //     await AsyncStorage.multiRemove(keys);
-  //   } catch (e) {
-  //     // read key error
-  //     console.log(e);
-  //   }
-  // };
-
-  const callback = (response) => {
-    if (response.message === "User successfully registered") {
-      deleteAsyncData();
-      signUp();
-      setLoading(false);
-      passUser(JSON.stringify(response.user));
-    }
-    setLoading(false);
-  };
-
   const passUser = async (data) => {
     console.log("dataUser", data);
     await AsyncStorage.setItem("user", data);
   };
 
-  const errorCallback = (response) => {
-    console.log("response error:", response);
-    setLoading(false);
-  };
-
-  // const smsCallback = (response) => {
-  //   // console.log(response.success);
-  //   // To-do: when response is successfull setOtpIsSent to "true"
-  //   if (response.success) {
-  //     setOtpIsSent(true);
-  //   } else {
-  //     Toast.show("Please provide a valid mobile number.", {
-  //       duration: Toast.durations.SHORT,
-  //     });
-  //   }
+  // const errcallback = (response) => {
+    // To-do: when response is unsuccessfull setOtpIsSent to "false"
+    // console.log("error", response);
   // };
 
-  const errcallback = (response) => {
-    // To-do: when response is unsuccessfull setOtpIsSent to "false"
-    console.log("error", response);
-    Toast.show("Bad network.", {
-      duration: Toast.durations.SHORT,
-    });
-  };
-
-  // setTimeout(()=> {
-  //   StartVerification(`+234${user.phone}`, smsCallback, errcallback);
-  // },2000)
-
-  // selected === 2 ? StartVerification(`+234${user.phone}`, smsCallback, errcallback) : null
+  // const smsCallback = (response) => {
+    // props.setLoading(false);
+    // setOTPsent to true
+    // props.signUpUser only and set
+    //  in api call register user and 
+  // };
 
   const ResendOtp = () => {
-    if (props.password === "") {
-      return Toast.show("Password field is empty.", {
-        duration: Toast.durations.SHORT,
-      });
-    } else {
-      StartVerification(`+234${user.phone}`, smsCallback, errcallback);
-    }
+    alert("Click send code button to resend OTP")
+    // if (props.password === "") {
+    //   return Toast.show("Password field is empty.", {
+    //     duration: Toast.durations.SHORT,
+    //   });
+    // } else {
+    //   StartVerification(`+234${user.phone}`, smsCallback, errcallback);
+    // }
   };
 
   return (
@@ -247,7 +84,7 @@ export default function LoginPassword(props) {
       </View>
 
       <View style={{ position: "relative", top: "25%" }}>
-        {loading ? (
+        {props.loading ? (
           <ActivityIndicator
             style={{ top: -35, position: "absolute", left: "45%" }}
             color={colors.SECONDARY_COLOR_VARIANT}
@@ -266,7 +103,7 @@ export default function LoginPassword(props) {
         </Text>
         <TextInput
           mode="outlined"
-          value={props.OTP}
+          maxLength={6}
           outlineColor="transparent"
           keyboardType="numeric"
           style={[styles.input, styles.layoutStyle]}
@@ -294,13 +131,7 @@ export default function LoginPassword(props) {
               fontSize: 15,
               padding: 3,
             }}
-            onPress={() => {
-              props.isOtpSent === null
-                ? console.log("pressed")
-                : props.isOtpSent
-                ? alert("OTP has already being sent")
-                : ResendOtp();
-            }}
+            onPress={() => ResendOtp()}
           >
             Resend
           </Text>
@@ -317,7 +148,10 @@ export default function LoginPassword(props) {
         width={14}
       />
       {props.selected === 2 ? (
-        <TouchableOpacity style={[styles.button]} onPress={props.SignUpUser}>
+        <TouchableOpacity style={[styles.button]} onPress={() => {
+          props.SignUpUser()
+        }
+          }>
           <Text
             style={{
               color: colors.NATURAL_COLOR.white,
@@ -326,7 +160,7 @@ export default function LoginPassword(props) {
               fontWeight: "500",
             }}
           >
-            {!props.isOtpSent ? "Send Code" : "Continue"}
+            {!props.isOtpSent ? "Send Code" : "Submit"}
           </Text>
         </TouchableOpacity>
       ) : null}</View>

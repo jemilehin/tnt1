@@ -17,7 +17,6 @@ import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityI
 
 import colors from "../../Constant/Color.json";
 import { URL } from "../../helpers/api";
-import { Value } from "react-native-reanimated";
 
 // import states from "../../helpers/JSON/states.json";
 
@@ -84,7 +83,7 @@ export default function ResidentAddress(props) {
     let pickerResult = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
       allowsEditing: true,
-      // aspect: [4, 3],
+      aspect: [4, 3],
       quality: 1,
     });
     let result = pickerResult.uri;
@@ -92,11 +91,9 @@ export default function ResidentAddress(props) {
     if (!pickerResult.cancelled) {
       setIdCardUploadedResult("uploaded");
       props.setIDSrc(imageUri);
-      // await AsyncStorage.setItem("id_card", imageUri);
     } else {
       setIdCardUploadedResult("cancelled");
       props.setIDSrc("");
-      // await AsyncStorage.removeItem("id_card", imageUri);
     }
   };
   let stateArr = [];
@@ -112,13 +109,11 @@ export default function ResidentAddress(props) {
   props.selected === 1 ? refineState() : null;
 
   const getDataType = (value, type) => {
-    // console.log(value)
     if (type === "STATE_TO_LGA") {
       lgaArray = [];
       wardArray = [];
       pollingUnitArr = [];
       stateArr.find((element) => {
-        console.log("state", type);
         if (element.name === value) {
           fetch(`${URL}getLocalgovernments/${element.id}`, requestOptions)
             .then((res) => res.text())
@@ -131,7 +126,6 @@ export default function ResidentAddress(props) {
       pollingUnitArr = [];
       lgaArray.find((element) => {
         if (element.name === value) {
-          console.log(element.id);
           fetch(`${URL}getWard/${element.id}`, requestOptions)
             .then((res) => res.text())
             .then((wards) => setWard(JSON.parse(wards)));
@@ -151,10 +145,6 @@ export default function ResidentAddress(props) {
   };
 
   const refineData = (data, type) => {
-    console.log(data);
-    // lgaArray = [];
-    // wardArray = [];
-    // pollingUnitArr = [];
     for (const item in data) {
       if (type === "LGA") {
         lgaArray.push({ id: item, name: data[item] });
@@ -163,15 +153,13 @@ export default function ResidentAddress(props) {
         wardArray.push({ id: item, name: data[item] });
       }
       if (type === "PU") {
-        pollingUnitArr.push({ id: item, name: data[item] });
+        pollingUnitArr.push({ id: item, name: data[item]});
       }
     }
   };
-  selectedStatevalue !== null ? refineData(lgas.LocalGovernment, "LGA") : null;
-  selectedLgas !== null ? refineData(wards.ward, "WARDS") : null;
-  selectedWard !== null ? refineData(pollingUnit.PollingUnits, "PU") : null;
-  // console.log(selectedWard)
-  // console.log("unit",pollingUnitArr)
+  selectedStatevalue !== null ? refineData(lgas.LocalGovernment, "LGA") : "Do nothing";
+  selectedLgas !== null ? refineData(wards.ward, "WARDS") : "Do nothing";
+  selectedWard !== null ? refineData(pollingUnit.PollingUnits, "PU") : "Do nothing";
   return (
     <>
       <View style={[styles.innerContainer, styles.layoutStyle]}>
@@ -190,20 +178,9 @@ export default function ResidentAddress(props) {
               style={[styles.input, styles.layoutStyle]}
               selectedValue={selectedStatevalue}
               onValueChange={async (itemValue, itemIndex) => {
-                // try {
-                // console.log(itemValue);
-                // setSelectedState(itemValue);
-
-                // selectedStatevalue !== itemValue ? changeData() : console.log("none")
                 props.setStateValue(itemValue);
                 getDataType(itemValue, "STATE_TO_LGA");
                 setSelectedStatevalue(itemValue);
-                // user.state = itemValue;
-                // Object.values(states.State)
-                //   await AsyncStorage.setItem("state", itemValue);
-                // } catch (e) {
-                //   console.log(e);
-                // }
               }}
             >
               <Picker.Item label="Select State" value="Select State" />
@@ -227,18 +204,9 @@ export default function ResidentAddress(props) {
               style={[styles.input, styles.layoutStyle]}
               selectedValue={selectedLgas}
               onValueChange={(itemValue, itemIndex) => {
-                // try {
-                // setLgas(selectState[itemValue].ward);
                 setSelectedLgas(itemValue);
                 getDataType(itemValue, "LGA_TO_WARD");
                 props.setLgaValue(itemValue);
-                //   await AsyncStorage.setItem(
-                //     "lga",
-                // selectState[itemValue].name
-                //   );
-                // } catch (e) {
-                //   console.log(e);
-                // }
               }}
             >
               <Picker.Item
@@ -279,15 +247,9 @@ export default function ResidentAddress(props) {
               style={[styles.input, styles.layoutStyle]}
               selectedValue={selectedWard}
               onValueChange={async (itemValue, itemIndex) => {
-                // try {
-                // setWard(lgas[itemValue].polling_unit);
                 getDataType(itemValue, "WARD_TO_POLLINGUNIT");
                 setSelectedWard(itemValue);
                 props.setWardValue(itemValue);
-                //   await AsyncStorage.setItem("ward", lgas[itemValue].name);
-                // } catch (e) {
-                //   console.log(e);
-                // }
               }}
             >
               <Picker.Item label="Select ward" value="" enabled={false} />
@@ -325,11 +287,6 @@ export default function ResidentAddress(props) {
                 // try {
                 props.setPollingUnitValue(itemValue);
                 setSelectedPollingUnit(itemValue);
-                // setSelectedWard(itemValue)
-                // await AsyncStorage.setItem("polling_unit", ward[itemValue]);
-                // } catch (e) {
-                //   console.log(e);
-                // }
               }}
             >
               <Picker.Item label={"Select polling unit"} value="" />
@@ -351,13 +308,6 @@ export default function ResidentAddress(props) {
               )}
             </Picker>
           </View>
-          {props.loading ? (
-          <ActivityIndicator
-            style={{ top: -35, position: "absolute", left: "45%" }}
-            color={colors.SECONDARY_COLOR_VARIANT}
-            size="large"
-          />
-        ) : null}
           <View style={[styles.inputContainer]}>
             <Text style={[styles.textAttribute, styles.fonts]}>Address</Text>
             <TextInput
@@ -365,11 +315,6 @@ export default function ResidentAddress(props) {
               defaultValue={user.address}
               onChangeText={async (itemValue, itemIndex) => {
                 props.setAddressValue(itemValue);
-                // try {
-                //   await AsyncStorage.setItem("address", itemValue);
-                // } catch (e) {
-                //   console.log(e);
-                // }
               }}
             />
           </View>

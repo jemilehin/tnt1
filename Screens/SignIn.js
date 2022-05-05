@@ -7,83 +7,137 @@ import {
   StyleSheet,
   Text,
   TextInput,
-  Image
+  Image,
 } from "react-native";
-import { IconButton, 
-  // TextInput 
- } from 'react-native-paper';
+import {
+  IconButton,
+  // TextInput
+} from "react-native-paper";
 import { AuthContext } from "../Component/context";
 import colors from "../Constant/Color.json";
 import { SignInRequest } from "../Redux/Member/actions";
-import { ActivityIndicator } from 'react-native-paper';
+import { ActivityIndicator } from "react-native-paper";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Input } from "../Component/Input";
 import { Header } from "../Component/HeaderBack";
+import Toast from "react-native-root-toast";
 
 export default function SignIn({ navigation }) {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const {signIn} = React.useContext(AuthContext);
-  const [isLoginInProgress, setProgress] = useState(false)
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const { signIn } = React.useContext(AuthContext);
+  const [isLoginInProgress, setProgress] = useState(false);
 
   const OnSignIn = () => {
-    if(email === '' || password === ''){
-      alert('email or password is empty')
-    }else{
-      setProgress(true)
-      SignInRequest(email,password,callback,errorCallback)
+    if (email === "" || password === "") {
+      Toast.show("email or password is empty", {
+        duration: Toast.durations.SHORT,
+      });
+    } else {
+      setProgress(true);
+      SignInRequest(email, password, callback, errorCallback);
     }
-  }
+  };
 
-  const callback = async(response) => {
-    console.log(response)
-    setProgress(false)
-    signIn()
-      // await AsyncStorage.setItem('user', JSON.stringify(response.user))
-  }
+  const callback = async (response) => {
+    setProgress(false);
+    signIn();
+  };
 
   const errorCallback = (err) => {
-    setProgress(false)
-    alert('Bad network request')
-    console.log(err)
-  }
+    setProgress(false);
+    if (err === "401") {
+      Toast.show("User email or password is not correct!", {
+        duration: Toast.durations.SHORT,
+      });
+    } else {
+      Toast.show("Something went wrong in the server!", {
+        duration: Toast.durations.SHORT,
+      });
+    }
+  };
 
-  Header("LEFT",navigation,colors.PRIMARY_COLOR)
-
+  Header("LEFT", navigation, colors.PRIMARY_COLOR);
 
   return (
     <View style={styles.container}>
       <View style={[styles.top_container]}>
-      <IconButton
-    icon="keyboard-backspace"
-    color={colors.PRIMARY_COLOR}
-    size={25}
-    onPress={() => navigation.goBack()}
-  />
-    <Image style={[styles.top_image,{height: 130, width: 130}]} source={require("../assets/images/top_circle.png")} />
+        <IconButton
+          icon="keyboard-backspace"
+          color={colors.PRIMARY_COLOR}
+          size={25}
+          onPress={() => navigation.goBack()}
+        />
+        <Image
+          style={[styles.top_image, { height: 130, width: 130 }]}
+          source={require("../assets/images/top_circle.png")}
+        />
       </View>
-      <Text style={{fontSize: 35, fontWeight: '700', left: "7%", color: colors.PRIMARY_COLOR}}>Log In</Text>
+      <Text
+        style={{
+          fontSize: 35,
+          fontWeight: "700",
+          left: "7%",
+          color: colors.PRIMARY_COLOR,
+        }}
+      >
+        Log In
+      </Text>
 
       <View style={styles.innerContainer}>
-        <Input placeholder="Email" inputStyle={{marginBottom:"8%"}} setText={setEmail}/>
-        <Input placeholder="Password" inputStyle={{marginTop:"8%"}} setText={setPassword} secureTextEntry={true}/>
+        <Input
+          // placeholder="Email"
+          // inputStyle={{ marginBottom: "8%" }}
+          // setText={setEmail}
+          mode="outlined"
+          placeholder="Email"
+          outlineColor="transparent"
+          style={[styles.input, styles.layoutStyle, { marginBottom: "8%" }]}
+          onChangeText={(text) => setEmail(text)}
+        />
+        <Input
+          // placeholder="Password"
+          // inputStyle={{ marginTop: "8%" }}
+          // setText={setPassword}
+          secureTextEntry={true}
+          mode="outlined"
+          placeholder="Password"
+          maxLength={12}
+          outlineColor="transparent"
+          style={[styles.input, styles.layoutStyle, { marginBottom: "8%" }]}
+          onChangeText={(text) => setPassword(text)}
+        />
       </View>
 
-      <ActivityIndicator Type='large' animating={isLoginInProgress} color={colors.SECONDARY_COLOR_VARIANT} />
+      <ActivityIndicator
+        Type="large"
+        animating={isLoginInProgress}
+        color={colors.SECONDARY_COLOR_VARIANT}
+      />
 
       <View style={styles.buttonSection}>
-          <TouchableOpacity style={[styles.button]}
-            onPress={()=> OnSignIn()}
+        <TouchableOpacity style={[styles.button]} onPress={() => OnSignIn()}>
+          <Text style={styles.buttonText}>Login</Text>
+        </TouchableOpacity>
+        <View style={styles.innerSection}>
+          <Text style={[{ marginRight: 8 }, styles.innersectionText]}>
+            Forgot Password?
+          </Text>
+          <Text
+            style={[
+              { color: colors.TEXT_BUTTON_COLOR },
+              styles.innersectionText,
+            ]}
           >
-              <Text style={styles.buttonText}>Login</Text>
-          </TouchableOpacity>
-          <View style={styles.innerSection}>
-              <Text style={[{marginRight: 8}, styles.innersectionText]}>Forgot Password?</Text>
-              <Text style={[{color: colors.TEXT_BUTTON_COLOR}, styles.innersectionText]}>reset</Text>
-          </View>
-          {/* <Text style={{fontSize: 15,fontWeight: "bold", paddingVertical: 20}} onPress={() => navigation.navigate("Register")}>Register</Text> */}
+            reset
+          </Text>
+        </View>
+        {/* <Text style={{fontSize: 15,fontWeight: "bold", paddingVertical: 20}} onPress={() => navigation.navigate("Register")}>Register</Text> */}
       </View>
-      <Image style={[styles.bottom_image,{height: 130, width: 130}]} source={require("../assets/images/bottom_circle.png")} />
+      <Image
+        style={[styles.bottom_image, { height: 130, width: 130 }]}
+        source={require("../assets/images/bottom_circle.png")}
+      />
     </View>
   );
 }
@@ -98,22 +152,22 @@ const styles = StyleSheet.create({
   },
   innerContainer: {
     top: "10%",
-    left: "5%"
+    left: "5%",
   },
   buttonSection: {
     position: "relative",
-    top: Dimensions.get("screen").height/7.5,
+    top: Dimensions.get("screen").height / 7.5,
     alignItems: "center",
-    flex: 1
+    flex: 1,
   },
   button: {
     alignItems: "center",
     backgroundColor: colors.PRIMARY_COLOR,
     paddingTop: 12,
     paddingBottom: 12,
-    width: '50%',
+    width: "50%",
     borderRadius: 50,
-    marginBottom: 12
+    marginBottom: 12,
   },
   buttonText: {
     color: colors.NATURAL_COLOR.white,
@@ -129,24 +183,33 @@ const styles = StyleSheet.create({
     fontWeight: "600",
   },
   innerSection: {
-      flexDirection: "row",
-      justifyContent: 'space-between',
-      top: "7%"
+    flexDirection: "row",
+    justifyContent: "space-between",
+    top: "7%",
   },
   innersectionText: {
-      fontWeight: '600',
-      fontSize: 15
+    fontWeight: "600",
+    fontSize: 15,
   },
   top_container: {
-    flexDirection: 'row',
-    justifyContent: "space-between"
+    flexDirection: "row",
+    justifyContent: "space-between",
   },
   top_image: {
     top: -30,
-    left: "30%"
+    left: "30%",
   },
   bottom_image: {
     bottom: -30,
-    right: "15%"
-  }
+    right: "15%",
+  },layoutStyle: {
+          position: "relative",
+        },
+        input: {
+          paddingVertical: 12,
+          paddingHorizontal: 15,
+          backgroundColor: "#C2CEF1",
+          width: "90%",
+          borderRadius: 50
+        },
 });
