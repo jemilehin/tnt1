@@ -7,8 +7,9 @@ import {
   StyleSheet,
   Text,
   ScrollView,
-  SafeAreaView,KeyboardAvoidingView,Keyboard,
-  ActivityIndicator
+  SafeAreaView,
+  Keyboard,
+  ActivityIndicator,
 } from "react-native";
 import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
 import PagerView from "react-native-pager-view";
@@ -21,14 +22,18 @@ import colors from "../Constant/Color.json";
 
 import { AuthContext } from "../Component/context";
 import { Header } from "../Component/HeaderBack";
-import { CheckVerification,StartVerification,SignUpRequest } from "../Redux/Member/actions";
+import {
+  CheckVerification,
+  StartVerification,
+  SignUpRequest,
+} from "../Redux/Member/actions";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const FormPages = (props) => {
   return (
     <PagerView
       ref={props.pager}
-      style={{ height: "100%"}}
+      style={{ height: "100%" }}
       initialPage={0}
       pageMargin={10}
       onPageScroll={(e) => props.setSelected(e.nativeEvent.position + 1)}
@@ -56,7 +61,14 @@ const FormPages = (props) => {
         />
       </View>
       <View key="3">
-        <LoginPassword isOtpSent={props.isOtpSent} setOtpIsSent={props.setOtpIsSent} SignUpUser={props.SignUpUser} setOtp={props.setOtp} selected={props.selected - 1} />
+        <LoginPassword
+          isOtpSent={props.isOtpSent}
+          setOtpIsSent={props.setOtpIsSent}
+          SignUpUser={props.SignUpUser}
+          setOtp={props.setOtp}
+          selected={props.selected - 1}
+          phone={props.phone}
+        />
       </View>
     </PagerView>
   );
@@ -71,7 +83,6 @@ const buttonPositionInPercentValue = Math.round(
 );
 
 export default function Registration({ navigation }) {
-
   const { signUp } = React.useContext(AuthContext);
 
   const [selected, setSelected] = React.useState(1);
@@ -91,7 +102,7 @@ export default function Registration({ navigation }) {
   const [isOtpSent, setOtpIsSent] = React.useState(false);
   const pagerView = React.useRef(0);
   const [loading, setLoading] = React.useState(false);
-  const [isCodeVerified, setCodeIsVerified] = React.useState(false)
+  const [isCodeVerified, setCodeIsVerified] = React.useState(false);
 
   const formData = new FormData();
   formData.append("fullname", fullname);
@@ -104,9 +115,9 @@ export default function Registration({ navigation }) {
   formData.append("pollingUnit", polling_unit);
   formData.append("address", addressValue);
   formData.append("img", imageSrc);
-  formData.append("validId",idSrc);
+  formData.append("validId", idSrc);
   formData.append("password", password);
-  formData.append("password_confirmation", password)
+  formData.append("password_confirmation", password);
 
   const passUser = async (data) => {
     console.log("dataUser", data);
@@ -120,12 +131,9 @@ export default function Registration({ navigation }) {
       });
     }
     if (number === "") {
-      return Toast.show(
-        "Your mobile number is required",
-        {
-          duration: Toast.durations.SHORT,
-        }
-      );
+      return Toast.show("Your mobile number is required", {
+        duration: Toast.durations.SHORT,
+      });
     }
     if (email === "") {
       return Toast.show("Your email is required", {
@@ -171,41 +179,40 @@ export default function Registration({ navigation }) {
       // ToDo: start verification if isOtpSent is "false"
       // then is smsCallback setOTPSent to "true" to overide
       // condition
-      setLoading(true)
+      setLoading(true);
       if (!isOtpSent) {
         // setLoading(true)
-        StartVerification(`+234${number}`, smsCallback, errCallback)
-         Toast.show("Wait while a code is being sent", {
-              duration: Toast.durations.LONG,
-         })
+        StartVerification(`+234${number}`, smsCallback, errCallback);
+        Toast.show("Wait while a code is being sent", {
+          duration: Toast.durations.LONG,
+        });
       } else {
-        if(!isCodeVerified){
+        if (!isCodeVerified) {
           CheckVerification(`+234${number}`, OTP, VerifyCallback);
           // setLoading(true);
           Toast.show("Verifying Code!", {
             duration: Toast.durations.SHORT,
-       })
-        }else{
+          });
+        } else {
           // setLoading(true);
-          SignUpRequest(formData, callback, errorCallback)
+          SignUpRequest(formData, callback, errorCallback);
         }
-          
       }
     }
   };
 
   // callback response if otp was successfull sent
   const smsCallback = (response) => {
-    setOtpIsSent(response)
+    setOtpIsSent(response);
     setLoading(false);
   };
 
   // callback response when there is error sending otp code
   const errCallback = (response) => {
     Toast.show(String(response), {
-      duration: Toast.durations.LONG
-    })
-    setOtpIsSent(false)
+      duration: Toast.durations.LONG,
+    });
+    setOtpIsSent(false);
     setLoading(false);
   };
 
@@ -214,19 +221,21 @@ export default function Registration({ navigation }) {
   };
 
   const callback = (response) => {
-    setLoading(false)
+    setLoading(false);
     signUp();
   };
 
   const errorCallback = (response) => {
     setLoading(false);
-    if(response.message === "500"){
-    Toast.show("Email has been used", {
-      duration: Toast.durations.LONG, position: Dimensions.get("screen").height*0.7
-    });
-    }else{
+    if (response.message === "500") {
+      Toast.show("Email has been used", {
+        duration: Toast.durations.LONG,
+        position: Dimensions.get("screen").height * 0.7,
+      });
+    } else {
       Toast.show("Error connecting to server", {
-        duration: Toast.durations.LONG,position: Dimensions.get("screen").height*0.7
+        duration: Toast.durations.LONG,
+        position: Dimensions.get("screen").height * 0.7,
       });
     }
   };
@@ -235,18 +244,18 @@ export default function Registration({ navigation }) {
   const VerifyCallback = (response) => {
     if (response.success) {
       SignUpRequest(formData, callback, errorCallback);
-      setCodeIsVerified(true)
+      setCodeIsVerified(true);
     } else {
       setLoading(false);
-      if(OTP.length !== 6){
-        Toast.show(String(response.message),{
-          duration: Toast.durations.LONG
-        })
-      }else{
-        setOtpIsSent(false)
-        Toast.show("Try resend OTP code",{
-          duration: Toast.durations.LONG
-        })
+      if (OTP.length !== 6) {
+        Toast.show(String(response.message), {
+          duration: Toast.durations.LONG,
+        });
+      } else {
+        setOtpIsSent(false);
+        Toast.show("Try resend OTP code", {
+          duration: Toast.durations.LONG,
+        });
       }
     }
   };
@@ -254,15 +263,15 @@ export default function Registration({ navigation }) {
   Header("LEFT", navigation, colors.PRIMARY_COLOR);
   const [keyboardStatus, setKeyboardStatus] = React.useState(false);
   React.useEffect(() => {
-    Keyboard.addListener('keyboardDidShow', _keyboardDidShow);
-    Keyboard.addListener('keyboardDidHide', _keyboardDidHide);
+    Keyboard.addListener("keyboardDidShow", _keyboardDidShow);
+    Keyboard.addListener("keyboardDidHide", _keyboardDidHide);
 
     // cleanup function
     return () => {
-      Keyboard.removeListener('keyboardDidShow', _keyboardDidShow);
-      Keyboard.removeListener('keyboardDidHide', _keyboardDidHide);
+      Keyboard.removeListener("keyboardDidShow", _keyboardDidShow);
+      Keyboard.removeListener("keyboardDidHide", _keyboardDidHide);
     };
-  },[])
+  }, []);
   const _keyboardDidShow = () => setKeyboardStatus(true);
   const _keyboardDidHide = () => setKeyboardStatus(false);
 
@@ -290,15 +299,20 @@ export default function Registration({ navigation }) {
         isOtpSent={isOtpSent}
         SignUpUser={() => SignUpUser()}
         loading={loading}
+        phone={number}
       />
-      
+
       {loading ? (
-          <ActivityIndicator
-            style={{ top:  Dimensions.get("screen").height*0.40, position: "absolute", left: Dimensions.get("screen").width*0.44}}
-            color={colors.SECONDARY_COLOR_VARIANT}
-            size="large"
-          />
-        ) : null}
+        <ActivityIndicator
+          style={{
+            top: Dimensions.get("screen").height * 0.4,
+            position: "absolute",
+            left: Dimensions.get("screen").width * 0.44,
+          }}
+          color={colors.SECONDARY_COLOR_VARIANT}
+          size="large"
+        />
+      ) : null}
       <View
         style={[
           styles.buttonWrapper,
@@ -307,28 +321,23 @@ export default function Registration({ navigation }) {
           },
         ]}
       >
-        {keyboardStatus ? null : <><Indicator step={3} selected={selected} width={14} />
-        <View>
-          {selected !== 3 ? (
-            <TouchableOpacity
-              style={[styles.button, { flex: selected !== 3 ? null : 1  }]}
-              onPress={() => {
-                next(selected);
-              }}
-            >
-              <Text style={styles.buttonText}>Next</Text>
-            </TouchableOpacity>
-          ) : null
-        //   <TouchableOpacity
-        //   style={[styles.button]}
-        //   onPress={() => {
-        //     SignUpUser()
-        //   }}
-        // >
-        //   <Text style={styles.buttonText}>Submit</Text>
-        // </TouchableOpacity>
-        }
-        </View></>}
+        {keyboardStatus ? null : (
+          <>
+            <Indicator step={3} selected={selected} width={14} />
+            <View>
+              {selected !== 3 ? (
+                <TouchableOpacity
+                  style={[styles.button, { flex: selected !== 3 ? null : 1 }]}
+                  onPress={() => {
+                    next(selected);
+                  }}
+                >
+                  <Text style={styles.buttonText}>Next</Text>
+                </TouchableOpacity>
+              ) : null}
+            </View>
+          </>
+        )}
       </View>
     </View>
   );

@@ -163,7 +163,7 @@ export default function ResidentAddress(props) {
   return (
     <>
       <View style={[styles.innerContainer, styles.layoutStyle]}>
-        <Text style={[styles.header, styles.fonts]}>Resident address</Text>
+        <Text style={[styles.header]}>Resident address</Text>
       </View>
 
       <SafeAreaView style={{ height: "65%", top: 60 }}>
@@ -183,7 +183,7 @@ export default function ResidentAddress(props) {
                 setSelectedStatevalue(itemValue);
               }}
             >
-              <Picker.Item label="Select State" value="Select State" />
+              <Picker.Item style={styles.pickerItem} label="Select State" value="Select State" />
               {stateArr === null
                 ? null
                 : stateArr.map((state, index) => {
@@ -210,6 +210,7 @@ export default function ResidentAddress(props) {
               }}
             >
               <Picker.Item
+                style={styles.pickerItem}
                 label={"Select LGA"}
                 value="Select LGA"
                 enabled={false}
@@ -252,7 +253,7 @@ export default function ResidentAddress(props) {
                 props.setWardValue(itemValue);
               }}
             >
-              <Picker.Item label="Select ward" value="" enabled={false} />
+              <Picker.Item style={styles.pickerItem} label="Select ward" value="" enabled={false} />
               {wardArray.length > 0 ? (
                 wardArray.map((ward, index) => (
                   <Picker.Item
@@ -284,15 +285,14 @@ export default function ResidentAddress(props) {
               style={[styles.input, styles.layoutStyle]}
               selectedValue={selectedPollingUnit}
               onValueChange={async (itemValue, itemIndex) => {
-                // try {
                 props.setPollingUnitValue(itemValue);
                 setSelectedPollingUnit(itemValue);
               }}
             >
-              <Picker.Item label={"Select polling unit"} value="" />
+              <Picker.Item style={styles.pickerItem} label={"Select polling unit"} value="" />
               {pollingUnitArr.length > 0 ? (
                 pollingUnitArr.map((polling_unit, index) => (
-                  <Picker.Item label={polling_unit.name} value={polling_unit.name} key={index} />
+                  <Picker.Item  label={polling_unit.name} value={polling_unit.name} key={index} />
                 ))
               ) : (
                 <Picker.Item
@@ -312,7 +312,7 @@ export default function ResidentAddress(props) {
             <Text style={[styles.textAttribute, styles.fonts]}>Address</Text>
             <TextInput
               style={[styles.input, styles.layoutStyle]}
-              defaultValue={user.address}
+              placeholder="Enter your Address"
               onChangeText={async (itemValue, itemIndex) => {
                 props.setAddressValue(itemValue);
               }}
@@ -329,7 +329,7 @@ export default function ResidentAddress(props) {
               style={[styles.buttonPicker, { marginBottom: 10 }]}
               onPress={pickImage}
             >
-              <Text style={styles.buttonText}>Upload</Text>
+              <Text style={styles.pickerItem}>Upload</Text>
             </TouchableOpacity>
             {isImageUploaded === "pending" ? null : isImageUploaded ===
               "uploaded" ? (
@@ -351,7 +351,7 @@ export default function ResidentAddress(props) {
               Upload PVC or Valid ID Card
             </Text>
             <TouchableOpacity style={styles.buttonPicker} onPress={pickIdCard}>
-              <Text style={styles.buttonText}>Upload</Text>
+              <Text style={styles.pickerItem}>Upload</Text>
             </TouchableOpacity>
             {isIdCardUploaded === "pending" ? null : isIdCardUploaded ===
               "uploaded" ? (
@@ -383,14 +383,16 @@ const styles = StyleSheet.create({
   },
   header: {
     fontSize: 20,
-    marginBottom: -2,
+    fontWeight: "700",
+    color: colors.PRIMARY_COLOR
   },
   fonts: {
-    fontWeight: "600",
+    fontWeight: "700",
   },
   textAttribute: {
-    color: colors.NATURAL_COLOR.black,
-    fontSize: 15,
+    color: colors.PRIMARY_COLOR,
+    fontSize: 13,
+    marginBottom: 10
   },
   inputContainer: {
     position: "relative",
@@ -400,22 +402,25 @@ const styles = StyleSheet.create({
   input: {
     height: 40,
     padding: 5,
-    shadowColor: "#470000",
-    shadowOffset: {
-      width: 0,
-      height: 1,
-    },
-    shadowOpacity: 1,
-    shadowRadius: 0.5,
-    elevation: 2,
-    backgroundColor: "white",
+    // shadowColor: "#470000",
+    // shadowOffset: {
+    //   width: 0,
+    //   height: 1,
+    // },
+    // shadowOpacity: 1,
+    // shadowRadius: 0.5,
+    // elevation: 2,
+    backgroundColor: "#eff3f8",
   },
   buttonPicker: {
-    backgroundColor: "white",
+    backgroundColor: "#eff3f8",
     shadowColor: "black",
     shadowRadius: 5,
     shadowOpacity: 1,
     textAlign: "center",
     padding: 12,
   },
+  pickerItem:{
+    color: colors.PRIMARY_COLOR
+  }
 });

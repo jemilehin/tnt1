@@ -11,8 +11,10 @@ import {
   SafeAreaView,
   ToastAndroid,
   TextInput,
+  Image
 } from "react-native";
 // import AsyncStorage from "@react-native-async-storage/async-storage";
+import OTPInputView from '@twotalltotems/react-native-otp-input';
 
 import colors from "../../Constant/Color.json";
 import {
@@ -64,11 +66,14 @@ export default function LoginPassword(props) {
 
   return (
     <View style={{height: "100%", position: "relative"}}>
+      <View style={{flexDirection: "row" ,justifyContent: "center", top: "25%"}}>
+        <Image style={{width: 220, height: 180}}  source={require("../../assets/images/OTP_page.png")} />
+      </View>
       <View style={styles.otpSection}>
         <Text
           style={[
             styles.otpTextCenter,
-            { fontSize: 35, letterSpacing: 1, fontWeight: "500" },
+            { fontSize: 28, letterSpacing: 1, fontWeight: "700" },
           ]}
         >
           OTP Verification
@@ -76,14 +81,14 @@ export default function LoginPassword(props) {
         <Text
           style={[
             styles.otpTextCenter,
-            { width: "85%", left: "5%", fontSize: 16, fontWeight: "100" },
+            {fontSize: 15, fontWeight: "100", textAlign: "center" },
           ]}
         >
-          A 6-code digit has been sent to your mobile number
+          {props.phone !== "" ? `Code will be sent to ${props.phone}` : "Enter your phone number to get OTP Code"}
         </Text>
       </View>
 
-      <View style={{ position: "relative", top: "25%" }}>
+      <View style={{ position: "relative", top: "28%" }}>
         {props.loading ? (
           <ActivityIndicator
             style={{ top: -35, position: "absolute", left: "45%" }}
@@ -91,30 +96,29 @@ export default function LoginPassword(props) {
             size="large"
           />
         ) : null}
-        <Text
+        {/* <Text
           style={{
             textAlign: "center",
             fontSize: 20,
             fontWeight: "700",
             marginBottom: 20,
+            color: colors.SECONDARY_COLOR
           }}
         >
           Enter OTP
-        </Text>
-        <TextInput
-          mode="outlined"
-          maxLength={6}
-          outlineColor="transparent"
-          keyboardType="numeric"
+        </Text> */}
+        <OTPInputView
+          pinCount={6}
           style={[styles.input, styles.layoutStyle]}
-          onChangeText={(otp) => {
+          codeInputFieldStyle={styles.underlineStyleBase}
+          onCodeFilled={(otp) => {
               props.setOtp(otp);
           }}
         />
         <View
           style={{
             position: "relative",
-            top: 10,
+            top: 25,
             flexDirection: "row",
             justifyContent: "center",
           }}
@@ -137,7 +141,7 @@ export default function LoginPassword(props) {
           </Text>
         </View>
       </View>
-      <View style={{top: "58%", position: "relative"}}>
+      <View style={{top: "27%", position: "relative"}}>
       <Indicator
         styles={{
           flexDirection: "row",
@@ -190,24 +194,15 @@ const styles = StyleSheet.create({
     top: "25%",
   },
   input: {
-    height: 40,
-    padding: 5,
-    shadowColor: "#470000",
-    shadowOffset: {
-      width: 1,
-      height: 2,
-    },
-    shadowOpacity: 1,
-    shadowRadius: 0.5,
-    elevation: 4,
-    backgroundColor: "white",
+    height: "20%",
   },
   otpSection: {
     position: "relative",
-    top: "15%",
+    top: "23%",
   },
   otpTextCenter: {
     textAlign: "center",
+    color: colors.PRIMARY_COLOR
   },
   button: {
     marginTop: 10,
@@ -220,4 +215,11 @@ const styles = StyleSheet.create({
     zIndex: 1000,
     paddingVertical: 10,
   },
+  underlineStyleBase: {
+    width: 40,
+    borderWidth: 0,
+    borderBottomWidth: 1,
+    color: colors.PRIMARY_COLOR,
+    borderBottomColor: colors.PRIMARY_COLOR,
+  }
 });

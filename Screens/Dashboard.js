@@ -14,6 +14,7 @@ import {
 import { FAB } from "react-native-paper";
 import Card from "../Component/Card";
 import SnackBar from "react-native-snackbar-component";
+import { format } from "date-fns";
 
 import colors from "../Constant/Color.json";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -31,11 +32,12 @@ export const Dashboard = ({ navigation, route }) => {
     fetch(`${URL}allMessage`)
       .then((res) => res.json())
       .then((data) => {
+        console.log(data)
         setMessages(data.message);
         setResponse(false);
       })
       .catch((e) => setResponse(false));
-    setTimeout(() => setSnackMessage(false), 1500);
+      setTimeout(() => setSnackMessage(false), 1500);
   }, []);
 
   const fetchMoreData = () => {
@@ -79,12 +81,15 @@ export const Dashboard = ({ navigation, route }) => {
             style={{ width: "100%" }}
             renderItem={({ item }) => (
               <Card
-                style={[styles.card]}
+                card={[styles.card]}
                 onPress={() => {
                   navigation.navigate("Message", { messageId: item.id });
                 }}
               >
-                <Text style={styles.item}>{item.title}</Text>
+                <View style={{flexDirection: "row", justifyContent: "space-between" }}>
+                  <Text style={[styles.item,{fontWeight: "600"}]}>{item.title}</Text>
+                  <Text style={{fontWeight: "600"}}>{format(new Date(item.created_at),"MMMM, dd")}</Text>
+                </View>
                 <Text style={styles.decription}>{item.content}</Text>
               </Card>
             )}
@@ -163,13 +168,17 @@ const styles = StyleSheet.create({
   item: {
     fontSize: 20,
     fontWeight: "500",
+    color: "black"
   },
 
   card: {
-    height: 200,
-    width: Dimensions.get("window").width,
-    backgroundColor: "#f18484",
-    justifyContent: "center", //Centered vertically
-    alignItems: "center", // Centered horizontally
+    flexDirection: "column",
+    justifyContent: "flex-start",
+    paddingVertical: 13
+    // height: 200,
+    // width: Dimensions.get("window").width,
+    // backgroundColor: "#f18484",
+    // justifyContent: "center", //Centered vertically
+    // alignItems: "center", // Centered horizontally
   },
 });

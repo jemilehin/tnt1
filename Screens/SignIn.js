@@ -6,12 +6,11 @@ import {
   Dimensions,
   StyleSheet,
   Text,
-  TextInput,
   Image,
+  KeyboardAvoidingView
 } from "react-native";
 import {
   IconButton,
-  // TextInput
 } from "react-native-paper";
 import { AuthContext } from "../Component/context";
 import colors from "../Constant/Color.json";
@@ -27,6 +26,7 @@ export default function SignIn({ navigation }) {
   const [password, setPassword] = useState("");
   const { signIn } = React.useContext(AuthContext);
   const [isLoginInProgress, setProgress] = useState(false);
+  const [hidePassword,setHidePassword] = useState(false)
 
   const OnSignIn = () => {
     if (email === "" || password === "") {
@@ -83,30 +83,33 @@ export default function SignIn({ navigation }) {
       >
         Log In
       </Text>
-
-      <View style={styles.innerContainer}>
+      <View  style={styles.innerContainer}>
         <Input
-          // placeholder="Email"
-          // inputStyle={{ marginBottom: "8%" }}
-          // setText={setEmail}
           mode="outlined"
           placeholder="Email"
           outlineColor="transparent"
           style={[styles.input, styles.layoutStyle, { marginBottom: "8%" }]}
           onChangeText={(text) => setEmail(text)}
         />
-        <Input
-          // placeholder="Password"
-          // inputStyle={{ marginTop: "8%" }}
-          // setText={setPassword}
-          secureTextEntry={true}
-          mode="outlined"
-          placeholder="Password"
-          maxLength={12}
-          outlineColor="transparent"
-          style={[styles.input, styles.layoutStyle, { marginBottom: "8%" }]}
-          onChangeText={(text) => setPassword(text)}
+        <View style={{flexDirection: "row",width: "100%",alignItems: "stretch"}}>
+          <Input
+            secureTextEntry={hidePassword}
+            mode="outlined"
+            placeholder="Password"
+            maxLength={12}
+            outlineColor="transparent"
+            style={[styles.input, styles.layoutStyle,]}
+            onChangeText={(text) => setPassword(text)}
+          />
+          <IconButton
+          style={{position: "absolute", right: "12%" }}
+          icon={ password.length > 0 && hidePassword ? "eye" : "eye-off"}
+          color={colors.PRIMARY_COLOR}
+          size={25}
+          onPress={() => hidePassword ? setHidePassword(false) : setHidePassword(true)}
         />
+        </View>
+        {password.length > 0 ? <Text style={{fontSize: 12}}>Min. of 6 Character</Text> : null}
       </View>
 
       <ActivityIndicator
@@ -151,7 +154,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.NATURAL_COLOR.white,
   },
   innerContainer: {
-    top: "10%",
+    top: "5%",
     left: "5%",
   },
   buttonSection: {

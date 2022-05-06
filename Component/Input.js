@@ -7,7 +7,7 @@ import {
 
 export const Input = (props) => {
   return (
-    <View>
+    <View style={{width:"100%"}}>
       <TextInput
         {...props}
       />

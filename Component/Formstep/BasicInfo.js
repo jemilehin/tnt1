@@ -8,9 +8,13 @@ import {
   SafeAreaView,
   Dimensions,
   TextInput,
-} from "react-native";
+  KeyboardAvoidingView,
+  Platform
+} from "react-native";import {
+  IconButton,
+} from "react-native-paper";
 import { Picker } from "@react-native-picker/picker";
-import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
+// import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
 import colors from "../../Constant/Color.json";
 
 export const BasicInfo = (props) => {
@@ -19,17 +23,16 @@ export const BasicInfo = (props) => {
   const [mobile_num, setMobileNum] = React.useState("")
   const [email, setEmailValue] = React.useState("")
   const [password, setPasswordValue] = React.useState("")
+  const [hidePassword,setHidePassword] = React.useState(false)
 
   return (
-    <KeyboardAwareScrollView
-      resetScrollToCoords={{ x: 0, y: 0 }}
-      scrollEnabled={false}
-      contentContainerStyle={{flex: 1}}
+    <KeyboardAvoidingView
+      behavior={Platform.OS === "ios" ? "padding" : "position"}
     >
       <View style={[styles.innerContainer, styles.layoutStyle]}>
-        <Text style={[styles.header]}>Personal Details</Text>
+        <Text style={[styles.header]}>Personal details</Text>
         <Text
-          style={[styles.descriptonText, { flexWrap: "wrap", width: "80%" }]}
+          style={[styles.descriptonText, { flexWrap: "wrap", width: "80%",top:-5 }]}
         >
           Please provided valid details.
         </Text>
@@ -56,17 +59,13 @@ export const BasicInfo = (props) => {
           outlineColor="transparent"
           textContentType="telephoneNumber"
           defaultValue={mobile_num}
+          placeholder="Enter your Mobile Number"
           maxLength={11}
           keyboardType="phone-pad"
           style={[styles.input, styles.layoutStyle]}
           onChangeText={(value) => {
             props.setNumber(value)
             setMobileNum(value)
-            // try {
-            //   await AsyncStorage.setItem("mobile_num", value);
-            // } catch (e) {
-            //   console.log(e);
-            // }
           }}
         />
       </View>
@@ -78,6 +77,7 @@ export const BasicInfo = (props) => {
           outlineColor="transparent"
           textContentType="emailAddress"
           defaultValue={email}
+          placeholder="Enter your Email Address"
           keyboardType="email-address"
           style={[styles.input, styles.layoutStyle]}
           onChangeText={(value) => {
@@ -89,18 +89,27 @@ export const BasicInfo = (props) => {
 
       <View style={[styles.inputContainer]}>
         <Text style={[styles.textAttribute, styles.fonts]}>Password</Text>
+        <View>
         <TextInput
           mode="outlined"
+          secureTextEntry={hidePassword}
           outlineColor="transparent"
           defaultValue={password}
+          placeholder="Choose a secure Password"
           maxLength={11}
           style={[styles.input, styles.layoutStyle]}
           onChangeText={(value) => {
             props.setPassword(value)
             setPasswordValue(value)
           }}
-          placeholder="Min. of 6 characters"
-        />
+        /><IconButton
+        style={{position: "absolute", right: "0%" }}
+        icon={ password.length > 0 && hidePassword ? "eye" : "eye-off"}
+        color={colors.PRIMARY_COLOR}
+        size={20}
+        onPress={() => hidePassword ? setHidePassword(false) : setHidePassword(true)}
+      /></View>
+      {password.length > 0 ? <Text style={{fontSize: 12}}>Min. of 6 Character</Text> : null}
       </View>
 
       <View style={[styles.inputContainer]}>
@@ -109,23 +118,16 @@ export const BasicInfo = (props) => {
           style={[styles.input, styles.layoutStyle]}
           selectedValue={gender}
           onValueChange={async (itemValue, itemIndex) => {
-            // try {
             setGender(itemValue);
             props.setGender(itemValue)
-            //   await AsyncStorage.setItem("gender", itemValue);
-            // } catch (e) {
-            //   console.log(e);
-            // }
           }}
         >
-          <Picker.Item label="Select Gender" value="" />
+          <Picker.Item style={{color: colors.PRIMARY_COLOR}} label="Select Gender" value="" />
           <Picker.Item label="Female" value="female" />
           <Picker.Item label="Male" value="male" />
         </Picker>
       </View>
-      {/* </ScrollView>
-      </SafeAreaView> */}
-    </KeyboardAwareScrollView >
+    </KeyboardAvoidingView >
   );
 };
 
@@ -135,21 +137,23 @@ const styles = StyleSheet.create({
   },
   innerContainer: {
     flexDirection: "column",
-    top: "7%",
+    top: "8%",
   },
   header: {
-    fontSize: 25,
-    fontWeight: "500"
+    fontSize: 20,
+    fontWeight: "700",
+    color: colors.PRIMARY_COLOR
   },
   fonts: {
-    fontWeight: "600",
+    fontWeight: "700",
   },
   textAttribute: {
-    color: colors.NATURAL_COLOR.black,
-    fontSize: 15,
+    color: colors.PRIMARY_COLOR,
+    fontSize: 13,
+    marginBottom: 10
   },
   descriptonText: {
-    color: colors.NATURAL_COLOR.black,
+    color: colors.PRIMARY_COLOR,
     fontSize: 15,
     fontWeight: "100"
   },
@@ -159,16 +163,8 @@ const styles = StyleSheet.create({
     marginBottom: Dimensions.get("screen").height < 650 ? "8%" : "5%",
   },
   input: {
-    height: 40,
-    padding: 5,
+    padding: 8,
     shadowColor: "#470000",
-    shadowOffset: {
-      width: 1,
-      height: 2,
-    },
-    shadowOpacity: 1,
-    shadowRadius: 0.5,
-    elevation: 2,
-    backgroundColor: "white",
+    backgroundColor: "#eff3f8",
   },
 });
