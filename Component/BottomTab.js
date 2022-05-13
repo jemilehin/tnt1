@@ -3,41 +3,37 @@ import { createMaterialBottomTabNavigator } from "@react-navigation/material-bot
 import { IconButton } from "react-native-paper";
 import Ionicons from "react-native-vector-icons/Ionicons";
 
+import { connect, useDispatch } from "react-redux";
+import { signOutRequest } from "../Redux/Member/actions";
+
 import colors from "../Constant/Color.json";
 import { Dashboard } from "../Screens/Dashboard";
 
-import { AuthContext } from "./context";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+// import { AuthContext } from "./context";
 
 const Tab = createMaterialBottomTabNavigator();
 
-export const BottomNavigation = ({ navigation,route }) => {
+const BottomNavigation = ({ navigation,route,user }) => {
 
-  const {signOut} = React.useContext(AuthContext);
-  const [user,setUser] = React.useState({})
+  // const {signOut} = React.useContext(AuthContext);
 
-  const DeleteUserLocalData = async () => {
-    await AsyncStorage.removeItem('user')
-  }
-  const getUser = async() => {
-    let user = await AsyncStorage.getItem('user')
-    setUser(JSON.parse(user))
-  }
+  const dispatch = useDispatch()
 
-  React.useEffect(async() => {
-    getUser()
-    await navigation.setOptions({
+  React.useEffect(() => {
+    navigation.setOptions({
       headerRight: () => (
         <IconButton
-          onPress={() => navigation.navigate("Profile",{user: user})}
+          onPress={() => navigation.navigate("Profile",{user:user})}
           icon="account"
           size={30}
           color={colors.NATURAL_COLOR.white}
         />
       ),
-      title: "Welcome back"
+      title: `Welcome ${user.fullname}`
     });
   }, [user])
+
+  // console.log("user",user)
 
   return (
     <Tab.Navigator
@@ -61,8 +57,7 @@ export const BottomNavigation = ({ navigation,route }) => {
         listeners={() => ({
           tabPress: (event) => {
             event.preventDefault();
-            signOut();
-            DeleteUserLocalData()
+            dispatch(signOutRequest())
           },
         })}
       />
@@ -70,3 +65,9 @@ export const BottomNavigation = ({ navigation,route }) => {
     </Tab.Navigator>
   );
 };
+
+const mapStateToProps = state => {
+  return {user: state.reducers.user}
+}
+
+export default connect(mapStateToProps, null)(BottomNavigation)

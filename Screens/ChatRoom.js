@@ -38,13 +38,11 @@ const ChatRoom = ({ navigation }) => {
   //   return () => {};
   // });
 
-  async function launchImageLibrary() {
+  const launchImageLibrary = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.All,
       quality: 1,
     });
-
-    // console.log(result);
 
     if (!result.cancelled) {
       setImage(result.uri);
@@ -61,12 +59,12 @@ const ChatRoom = ({ navigation }) => {
       <Animated.View style={props.styles}>
         <TouchableOpacity
           style={[props.button_style, { backgroundColor: "#FFA500" }]}
+          onPress={() => launchImageLibrary()}
         >
           <IconButton
             icon="image"
             color={colors.NATURAL_COLOR.white}
             size={30}
-            onPress={() => launchImageLibrary()}
           />
         </TouchableOpacity>
         <TouchableOpacity
@@ -245,7 +243,6 @@ const ChatRoom = ({ navigation }) => {
                   value={msgInput}
                   multiline={true}
                   onChangeText={(text) => setMsgInput(text)}
-                  // onSubmitEditing={sendMsg}
                 />
 
                 <SelectPickerType
@@ -288,7 +285,7 @@ const ChatRoom = ({ navigation }) => {
                 </TouchableOpacity>
               </View>
               <TouchableOpacity
-                onPress={() => sendMessage("Sent to Admin","not",msgInput,callback)}
+                onPress={() => sendMessage(image,msgInput,callback)}
                 activeOpacity={0.5}
               >
                 <IconButton
@@ -344,6 +341,7 @@ const styles = StyleSheet.create({
     padding: 10,
     color: "gray",
     borderRadius: 30,
+    width: "100%",
   },
   receiverText: {
     color: "black",

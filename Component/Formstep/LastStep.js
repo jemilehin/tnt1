@@ -21,25 +21,15 @@ import {
   SignUpRequest,
   StartVerification,
 } from "../../Redux/Member/actions";
-
-import { AuthContext } from "../context";
 import { Indicator } from "../Indicator";
 
 export default function LoginPassword(props) {
-  const [user, setUser] = React.useState({});
   const [OTP, setOTP] = React.useState();
   const [validId, setValidid] = React.useState("");
   const [profileImg, setProfileImage] = React.useState("");
   const [numberVerified, setVerification] = React.useState(false);
 
   const [loading, setLoading] = React.useState(false);
-
-  const { signUp } = React.useContext(AuthContext);
-
-  const passUser = async (data) => {
-    console.log("dataUser", data);
-    await AsyncStorage.setItem("user", data);
-  };
 
   // const errcallback = (response) => {
     // To-do: when response is unsuccessfull setOtpIsSent to "false"

@@ -29,15 +29,18 @@ export const Dashboard = ({ navigation, route }) => {
   const [response, setResponse] = useState(true);
 
   React.useEffect(() => {
-    fetch(`${URL}allMessage`)
+    // let isMounted = true;
+    const unsubscribe = navigation.addListener('focus', () => {
+      fetch(`${URL}allMessage`)
       .then((res) => res.json())
       .then((data) => {
-        console.log(data)
         setMessages(data.message);
         setResponse(false);
       })
-      .catch((e) => setResponse(false));
+      .catch((e) => setResponse(false));})
+    
       setTimeout(() => setSnackMessage(false), 1500);
+      return unsubscribe ;
   }, []);
 
   const fetchMoreData = () => {
@@ -87,10 +90,10 @@ export const Dashboard = ({ navigation, route }) => {
                 }}
               >
                 <View style={{flexDirection: "row", justifyContent: "space-between" }}>
-                  <Text style={[styles.item,{fontWeight: "600"}]}>{item.title}</Text>
-                  <Text style={{fontWeight: "600"}}>{format(new Date(item.created_at),"MMMM, dd")}</Text>
+                  <Text style={[styles.item,{fontWeight: "700"}]}>{item.title}</Text>
+                  <Text style={{fontWeight: "500"}}>{format(new Date(item.created_at),"MMM, dd")}</Text>
                 </View>
-                <Text style={styles.decription}>{item.content}</Text>
+                <Text style={styles.decription}>{item.content.length > 30 ? item.content.slice(0,32)+"..." : item.content}</Text>
               </Card>
             )}
             ItemSeparatorComponent={() => <View style={{ height: 5 }} />}
@@ -168,7 +171,7 @@ const styles = StyleSheet.create({
   item: {
     fontSize: 20,
     fontWeight: "500",
-    color: "black"
+    color: "#4F4F4F"
   },
 
   card: {

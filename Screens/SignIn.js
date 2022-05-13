@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-
+import { connect, useDispatch } from "react-redux";
 import {
   View,
   TouchableOpacity,
@@ -12,48 +12,49 @@ import {
 import {
   IconButton,
 } from "react-native-paper";
-import { AuthContext } from "../Component/context";
+// import { AuthContext } from "../Component/context";
 import colors from "../Constant/Color.json";
 import { SignInRequest } from "../Redux/Member/actions";
 import { ActivityIndicator } from "react-native-paper";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Input } from "../Component/Input";
 import { Header } from "../Component/HeaderBack";
-import Toast from "react-native-root-toast";
+import { MessageModal } from "../Component/Modal";
 
 export default function SignIn({ navigation }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const { signIn } = React.useContext(AuthContext);
+  // const { signIn } = React.useContext(AuthContext);
   const [isLoginInProgress, setProgress] = useState(false);
   const [hidePassword,setHidePassword] = useState(false)
 
+  const [modalVisible, setModalVisible] = React.useState(false);
+  const [msgText, setMsgText] = React.useState("");
+
+  const dispatch = useDispatch()
+
   const OnSignIn = () => {
     if (email === "" || password === "") {
-      Toast.show("email or password is empty", {
-        duration: Toast.durations.SHORT,
-      });
+      setMsgText("Email or Password is empty");
+      setModalVisible(true);
     } else {
       setProgress(true);
-      SignInRequest(email, password, callback, errorCallback);
+      SignInRequest(email,password,callback,errorCallback,dispatch);
     }
   };
 
   const callback = async (response) => {
     setProgress(false);
-    signIn();
   };
 
   const errorCallback = (err) => {
     setProgress(false);
     if (err === "401") {
-      Toast.show("User email or password is not correct!", {
-        duration: Toast.durations.SHORT,
-      });
+      setMsgText("User email or password is not correct!");
+      setModalVisible(true);
     } else {
-      Toast.show("Something went wrong in the server!", {
-        duration: Toast.durations.SHORT,
-      });
+      setMsgText("Something went wrong in the server!");
+      setModalVisible(true);
     }
   };
 
@@ -61,6 +62,11 @@ export default function SignIn({ navigation }) {
 
   return (
     <View style={styles.container}>
+      <MessageModal
+        modalVisible={modalVisible}
+        setModalVisible={setModalVisible}
+        msgText={msgText}
+      />
       <View style={[styles.top_container]}>
         <IconButton
           icon="keyboard-backspace"

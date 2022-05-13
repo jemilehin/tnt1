@@ -3,12 +3,21 @@ import {
   SIGNIN_FAILURE,
   SIGNIN_SUCCESS,
   SIGNUP_FAILURE,
+  SIGNOUT_SUCCESS
 } from "./actionTypes";
 import api from "../../helpers/api";
 import { URL } from "../../helpers/api";
 import { twilloBaseUrl } from "../../helpers/twilloApi/twillo";
 
-export const SignUpRequest = async (formdata, callback, errorCallback) => {
+const signUpSuccess = (token,user) => ({
+  type: SIGNUP_SUCCESS, payload:{token: token, user: user }
+})
+
+const signInSuccess = (token,user) => ({
+  type: SIGNIN_SUCCESS, payload:{token: token, user: user }
+})
+
+export const SignUpRequest = async (formdata, callback, errorCallback,dispatch) => {
   // console.log(formdata);
   var requestOptions = {
     method: "POST",
@@ -25,11 +34,14 @@ export const SignUpRequest = async (formdata, callback, errorCallback) => {
         throw new Error(response.status);
       }
     })
-    .then((result) => callback(result))
+    .then((result) => {
+      dispatch(signUpSuccess(result.access_token, result.user))
+      callback(result)
+    })
     .catch((error) => errorCallback(error));
 };
 
-export const SignInRequest = async (email, password, callback, errCallback) => {
+export const SignInRequest = async (email, password, callback, errCallback, dispatch) => {
   const myHeaders = new Headers();
   myHeaders.append("Content-Type", "application/json");
   const credentials = JSON.stringify({
@@ -51,7 +63,10 @@ export const SignInRequest = async (email, password, callback, errCallback) => {
         throw new Error(response.status);
       }
     })
-    .then((result) => callback(result))
+    .then((result) => {
+      dispatch(signInSuccess(result.access_token, result.user))
+      callback(result)
+    })
     .catch((error) => errCallback(error.message));
 };
 
@@ -119,12 +134,11 @@ export const CheckVerification = (phoneNumber, code, callback) => {
     .catch((error) => console.log("err", error));
 };
 
-export const sendMessage = (title, slug, content, callback) => {
+export const sendMessage = (img,content, callback) => {
   var formdata = new FormData();
-  formdata.append("title", title);
-  formdata.append("slug", slug);
+  formdata.append("slug",fileInput.files[0], img);
   formdata.append("content", content);
-  console.log(title, slug, content);
+  // console.log(title, slug, content);
 
   var requestOptions = {
     method: "POST",
@@ -132,8 +146,12 @@ export const sendMessage = (title, slug, content, callback) => {
     redirect: "follow",
   };
 
-  fetch(`${URL}sendMessage`, requestOptions)
+  fetch(`${URL}userSendMessage`, requestOptions)
     .then((response) => response.status)
     .then((result) => callback(result))
     .catch((error) => console.log("error", error));
 };
+
+export const signOutRequest = () => ({
+  type: SIGNOUT_SUCCESS, payload: {user: null, token: null}
+})

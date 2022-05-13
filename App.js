@@ -1,5 +1,6 @@
-import 'react-native-gesture-handler';
+import 'react-native-gesture-handler'
 import * as React from "react";
+import { useKeepAwake } from 'expo-keep-awake';
 import AppLoading from "expo-app-loading";
 import { useFonts } from "@use-expo/font";
 import * as BackgroundFetch from 'expo-background-fetch';
@@ -8,11 +9,14 @@ import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { Dashboard } from "./Screens/Dashboard";
 import Registration from "./Screens/Registration";
-import { BottomNavigation } from "./Component/BottomTab";
+import  BottomNavigation from "./Component/BottomTab";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { RootSiblingParent } from "react-native-root-siblings";
 
-import { AuthContext } from "./Component/context";
+// import { AuthContext } from "./Component/context";
+
+import { Provider, useSelector } from 'react-redux';
+import store from './Redux/Store';
 
 import colors from "./Constant/Color.json";
 
@@ -39,48 +43,29 @@ const Stack = createNativeStackNavigator();
 //   robotoThin: require('./assets/fonts/Roboto-Thin.ttf'),
 // }
 
-export default function App({ navigation, route }) {
-  const [isloggedIn, setIsLoggedIn] = React.useState(false);
-  const [firstLaunching, setLaunching] = React.useState(false);
-  const authContext = React.useMemo(() => ({
-    signIn: () => {
-      setIsLoggedIn(true);
-    },
-    signUp: () => {
-      setIsLoggedIn(true);
-    },
-    signOut: () => {
-      setIsLoggedIn(false);
-    },
-  }));
+const App = ({ navigation, route }) => {
+  const token = useSelector((state) => state.reducers.token)
 
-  const firstLaunch = () => {
-    let value = AsyncStorage.getItem("isFirstLaunch")
-    
-    value.then(response => {
-      if (response === '1') {
-      setLaunching(true)
-      console.log('not null',response)
-     } else {
-      AsyncStorage.setItem("isFirstLaunch", '1');
-      setLaunching(false)
-      console.log('null',response)
-    }
-    })
-    
-  };
-
-  React.useEffect(() => {
-    firstLaunch();
-  });
+  // const [isloggedIn, setIsLoggedIn] = React.useState(false);
+  // const [firstLaunching, setLaunching] = React.useState(false);
+  // const authContext = React.useMemo(() => ({
+  //   signIn: () => {
+  //     setIsLoggedIn(true);
+  //   },
+  //   signUp: () => {
+  //     setIsLoggedIn(true);
+  //   },
+  //   signOut: () => {
+  //     setIsLoggedIn(false);
+  //   },
+  // }));
 
   return (
-    <RootSiblingParent>
-      <AuthContext.Provider value={authContext}>
+      // <AuthContext.Provider value={authContext}>
         <NavigationContainer>
-          {!isloggedIn ? (
+          {token === null ? (
             <Stack.Navigator
-              initialRouteName={firstLaunching ? "Login" : "Landing"}
+              initialRouteName="Landing"
             >
               <Stack.Screen
                 name="Landing"
@@ -161,7 +146,17 @@ export default function App({ navigation, route }) {
             </Stack.Navigator>
           )}
         </NavigationContainer>
-      </AuthContext.Provider>
-    </RootSiblingParent>
+      // </AuthContext.Provider>
+  );
+}
+
+export default function MainApp() {
+  useKeepAwake();
+  return (
+    <RootSiblingParent>
+      <Provider store={store}>
+        <App />
+      </Provider>
+     </RootSiblingParent> 
   );
 }

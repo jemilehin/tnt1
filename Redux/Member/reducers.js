@@ -1,12 +1,12 @@
-export const initialState = {
+const initialState = {
   token: null,
-  user: {}
+  user: null
 }
 
-export const reducers = (state, action) => {
+export const reducers = (state = initialState, action) => {
   switch (action.type) {
     case 'SIGNUP_SUCCESS':
-      return { ...state, user: action.payload.user };
+      return { ...state, token: action.payload.token, user: action.payload.user };
     case 'SIGNUP_FAILURE':
       return {...state};
     case 'SIGNIN_SUCCESS':
@@ -17,7 +17,9 @@ export const reducers = (state, action) => {
       };
     case 'SIGNIN_FAILURE':
       return {...state};
+    case 'SIGNOUT_SUCCESS':
+      return {...state, token: action.payload.token, user: action.payload.user}
     default:
-      break;
+      return state
   }
 };

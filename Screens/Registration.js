@@ -1,5 +1,6 @@
 import * as React from "react";
 import Toast from "react-native-root-toast";
+import { connect, useDispatch } from "react-redux";
 import {
   View,
   TouchableOpacity,
@@ -11,7 +12,6 @@ import {
   Keyboard,
   ActivityIndicator,
 } from "react-native";
-import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
 import PagerView from "react-native-pager-view";
 import { Indicator } from "../Component/Indicator";
 import { BasicInfo } from "../Component/Formstep/BasicInfo";
@@ -20,7 +20,7 @@ import ResidentAddress from "../Component/Formstep/ResidentAdress";
 
 import colors from "../Constant/Color.json";
 
-import { AuthContext } from "../Component/context";
+// import { AuthContext } from "../Component/context";
 import { Header } from "../Component/HeaderBack";
 import {
   CheckVerification,
@@ -28,15 +28,26 @@ import {
   SignUpRequest,
 } from "../Redux/Member/actions";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { MessageModal } from "../Component/Modal";
 
 const FormPages = (props) => {
+  // console.log(props.phone)
   return (
     <PagerView
       ref={props.pager}
       style={{ height: "100%" }}
       initialPage={0}
       pageMargin={10}
-      onPageScroll={(e) => props.setSelected(e.nativeEvent.position + 1)}
+      onPageScroll={(e) => {
+        props.setSelected(e.nativeEvent.position + 1)
+      }}
+      onPageScrollStateChanged={(e) => {
+        console.log(e.nativeEvent.pageScrollState)
+        if(e.nativeEvent.pageScrollState !== "dragging"){
+          if(props.selected === 2 && props.phone === ""){
+          alert("Enter all fields in personal details section.")}
+        }
+      }}
     >
       <View key="1">
         <BasicInfo
@@ -60,7 +71,7 @@ const FormPages = (props) => {
           loading={props.loading}
         />
       </View>
-      <View key="3">
+      {props.phone !== "" ? <View key="3">
         <LoginPassword
           isOtpSent={props.isOtpSent}
           setOtpIsSent={props.setOtpIsSent}
@@ -69,7 +80,7 @@ const FormPages = (props) => {
           selected={props.selected - 1}
           phone={props.phone}
         />
-      </View>
+      </View> : <></>}
     </PagerView>
   );
 };
@@ -83,7 +94,7 @@ const buttonPositionInPercentValue = Math.round(
 );
 
 export default function Registration({ navigation }) {
-  const { signUp } = React.useContext(AuthContext);
+  // const { signUp } = React.useContext(AuthContext);
 
   const [selected, setSelected] = React.useState(1);
   const [fullname, setFullname] = React.useState("");
@@ -104,6 +115,12 @@ export default function Registration({ navigation }) {
   const [loading, setLoading] = React.useState(false);
   const [isCodeVerified, setCodeIsVerified] = React.useState(false);
 
+  const [modalVisible, setModalVisible] = React.useState(false);
+  const [msgText, setMsgText] = React.useState("");
+
+  const dispatch = useDispatch()
+
+
   const formData = new FormData();
   formData.append("fullname", fullname);
   formData.append("state", stateValue);
@@ -119,61 +136,38 @@ export default function Registration({ navigation }) {
   formData.append("password", password);
   formData.append("password_confirmation", password);
 
-  const passUser = async (data) => {
-    console.log("dataUser", data);
-    // await AsyncStorage.setItem("user", data);
-  };
+  // const passUser = async (data) => {
+  //   console.log("dataUser", data);
+  //   // await AsyncStorage.setItem("user", data);
+  // };
 
   const SignUpUser = () => {
     if (fullname === "") {
-      return Toast.show("Your fullname is required", {
-        duration: Toast.durations.SHORT,
-      });
+      return setMsgText("Your fullname is required"), setModalVisible(true);
     }
     if (number === "") {
-      return Toast.show("Your mobile number is required", {
-        duration: Toast.durations.SHORT,
-      });
+      return setMsgText("Your mobile number is required"), setModalVisible(true);
     }
     if (email === "") {
-      return Toast.show("Your email is required", {
-        duration: Toast.durations.SHORT,
-      });
+      return setMsgText("Your email is required"), setModalVisible(true);
     }
     if (gender === "") {
-      return Toast.show("Your gender is required", {
-        duration: Toast.durations.SHORT,
-      });
-    }
-    if (stateValue === "") {
-      return Toast.show("State is required", {
-        duration: Toast.durations.SHORT,
-      });
+      return setMsgText("State is required"), setModalVisible(true);
     }
     if (lgaValue === "") {
-      return Toast.show("LGA is required", {
-        duration: Toast.durations.SHORT,
-      });
+      return setMsgText("LGA is required"), setModalVisible(true);
     }
     if (wardValue === "") {
-      return Toast.show("Your ward is required", {
-        duration: Toast.durations.SHORT,
-      });
+      return setMsgText("Your ward is required"), setModalVisible(true);
     }
     if (polling_unit === "") {
-      return Toast.show("Polling unit is required", {
-        duration: Toast.durations.SHORT,
-      });
+      return setMsgText("Polling unit is required"), setModalVisible(true);
     }
     if (addressValue === null) {
-      return Toast.show("Your address is required", {
-        duration: Toast.durations.SHORT,
-      });
+      return setMsgText("Your address is required"), setModalVisible(true);
     }
     if (password === null) {
-      return Toast.show("Set a password", {
-        duration: Toast.durations.SHORT,
-      });
+      return setMsgText("Set a password"), setModalVisible(true);
     } else {
       // SignUpRequest(formData, callback, errorCallback);
       // ToDo: start verification if isOtpSent is "false"
@@ -195,7 +189,7 @@ export default function Registration({ navigation }) {
           });
         } else {
           // setLoading(true);
-          SignUpRequest(formData, callback, errorCallback);
+          SignUpRequest(formData, callback, errorCallback,dispatch);
         }
       }
     }
@@ -214,48 +208,47 @@ export default function Registration({ navigation }) {
     });
     setOtpIsSent(false);
     setLoading(false);
+    setMsgText(String(response));
+    setModalVisible(true);
   };
 
   const next = (index) => {
     pagerView.current.setPage(index);
+    if(index === 2 & number === ""){
+      alert("Enter all fields in personal details section.")
+    }
   };
 
   const callback = (response) => {
     setLoading(false);
-    signUp();
+    // signUp();
   };
 
   const errorCallback = (response) => {
     setLoading(false);
     if (response.message === "500") {
-      Toast.show("Email has been used", {
-        duration: Toast.durations.LONG,
-        position: Dimensions.get("screen").height * 0.7,
-      });
-    } else {
-      Toast.show("Error connecting to server", {
-        duration: Toast.durations.LONG,
-        position: Dimensions.get("screen").height * 0.7,
-      });
-    }
+      setMsgText("Email has been used");
+      setModalVisible(true);
+  } else {
+      setMsgText("Error connecting to server");
+      setModalVisible(true);
+  }
   };
 
   // callback that verify input code
   const VerifyCallback = (response) => {
     if (response.success) {
-      SignUpRequest(formData, callback, errorCallback);
+      SignUpRequest(formData, callback, errorCallback,dispatch);
       setCodeIsVerified(true);
     } else {
       setLoading(false);
-      if (OTP.length !== 6) {
-        Toast.show(String(response.message), {
-          duration: Toast.durations.LONG,
-        });
+      if (OTP.length !== 6) { 
+        setMsgText(String(response.message));
+        setModalVisible(true);
       } else {
         setOtpIsSent(false);
-        Toast.show("Try resend OTP code", {
-          duration: Toast.durations.LONG,
-        });
+        setMsgText("Try resend OTP code");
+        setModalVisible(true);
       }
     }
   };
@@ -277,6 +270,11 @@ export default function Registration({ navigation }) {
 
   return (
     <View style={styles.container}>
+      <MessageModal
+        modalVisible={modalVisible}
+        setModalVisible={setModalVisible}
+        msgText={msgText}
+      />
       <FormPages
         setFullname={setFullname}
         setNumber={setNumber}
