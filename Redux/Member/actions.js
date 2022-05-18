@@ -3,7 +3,8 @@ import {
   SIGNIN_FAILURE,
   SIGNIN_SUCCESS,
   SIGNUP_FAILURE,
-  SIGNOUT_SUCCESS
+  SIGNOUT_SUCCESS,
+  UPDATE_PROFILE
 } from "./actionTypes";
 import api from "../../helpers/api";
 import { URL } from "../../helpers/api";
@@ -17,13 +18,16 @@ const signInSuccess = (token,user) => ({
   type: SIGNIN_SUCCESS, payload:{token: token, user: user }
 })
 
+const updateProfile = (user) => {
+  type: UPDATE_PROFILE, user
+}
+
 export const SignUpRequest = async (formdata, callback, errorCallback,dispatch) => {
   // console.log(formdata);
   var requestOptions = {
     method: "POST",
     body: formdata,
     redirect: "follow",
-    headers: { "Content-Type": "multipart/form-data" },
   };
 
   fetch(`${URL}register`, requestOptions)
@@ -74,14 +78,22 @@ export const memberProfileUpdate = async (
   data,
   id,
   callback,
-  errorCallback
+  errorCallback,
 ) => {
-  await api
-    .put(`update/${id}`, data)
-    .then((response) => callback(response))
-    .catch((e) => {
-      errorCallback(e);
-    });
+  // console.log(data)
+  await fetch(`${URL}update/${id}`,data)
+  .then(res => {
+    if(res.ok){
+      return res.json()
+    }else{
+      throw new Error(res.json())
+    }
+  })
+  .then(data => {
+    console.log(data)
+    callback(response)
+  })
+  .catch(error => errorCallback(error))
 };
 
 export const StartVerification = async (phoneNumber, callback, errCallback) => {
@@ -136,9 +148,8 @@ export const CheckVerification = (phoneNumber, code, callback) => {
 
 export const sendMessage = (img,content, callback) => {
   var formdata = new FormData();
-  formdata.append("slug",fileInput.files[0], img);
-  formdata.append("content", content);
-  // console.log(title, slug, content);
+  formdata.append("slug", img);
+  formdata.append("message", content);
 
   var requestOptions = {
     method: "POST",
@@ -147,9 +158,14 @@ export const sendMessage = (img,content, callback) => {
   };
 
   fetch(`${URL}userSendMessage`, requestOptions)
-    .then((response) => response.status)
-    .then((result) => callback(result))
-    .catch((error) => console.log("error", error));
+    .then((response) => {
+      if(response.ok){
+      return response.json()
+    }else{
+      throw new Error("Given data was invalid.")
+    }})
+    .then(result => callback(result))
+    .catch(error => console.log("error", error));
 };
 
 export const signOutRequest = () => ({

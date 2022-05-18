@@ -13,6 +13,7 @@ import {
   TextInput,
   Image
 } from "react-native";
+import { MessageModal } from "../Modal";
 // import AsyncStorage from "@react-native-async-storage/async-storage";
 import OTPInputView from '@twotalltotems/react-native-otp-input';
 
@@ -24,12 +25,9 @@ import {
 import { Indicator } from "../Indicator";
 
 export default function LoginPassword(props) {
-  const [OTP, setOTP] = React.useState();
-  const [validId, setValidid] = React.useState("");
-  const [profileImg, setProfileImage] = React.useState("");
-  const [numberVerified, setVerification] = React.useState(false);
 
-  const [loading, setLoading] = React.useState(false);
+  const [modalVisible, setModalVisible] = React.useState(false);
+  const [msgText, setMsgText] = React.useState("");
 
   // const errcallback = (response) => {
     // To-do: when response is unsuccessfull setOtpIsSent to "false"
@@ -137,6 +135,7 @@ export default function LoginPassword(props) {
           flexDirection: "row",
           justifyContent: "center",
         }}
+        selectedColor={colors.NATURAL_COLOR.black}
         step={3}
         selected={props.selected+1}
         width={14}
@@ -208,8 +207,9 @@ const styles = StyleSheet.create({
   underlineStyleBase: {
     width: 40,
     borderWidth: 0,
-    borderBottomWidth: 1,
+    borderBottomWidth: 3,
     color: colors.PRIMARY_COLOR,
     borderBottomColor: colors.PRIMARY_COLOR,
+    fontSize: 30,
   }
 });

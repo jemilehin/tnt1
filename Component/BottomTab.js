@@ -52,7 +52,7 @@ const BottomNavigation = ({ navigation,route,user }) => {
               color={colors.NATURAL_COLOR.white}
             />
           ),
-          tabBarLabel: "Signout",
+          tabBarLabel: "Log Out",
         }}
         listeners={() => ({
           tabPress: (event) => {

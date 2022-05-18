@@ -7,11 +7,9 @@ import {
   StyleSheet,
   Text,
   Image,
-  KeyboardAvoidingView
+  KeyboardAvoidingView,
 } from "react-native";
-import {
-  IconButton,
-} from "react-native-paper";
+import { IconButton } from "react-native-paper";
 // import { AuthContext } from "../Component/context";
 import colors from "../Constant/Color.json";
 import { SignInRequest } from "../Redux/Member/actions";
@@ -26,12 +24,12 @@ export default function SignIn({ navigation }) {
   const [password, setPassword] = useState("");
   // const { signIn } = React.useContext(AuthContext);
   const [isLoginInProgress, setProgress] = useState(false);
-  const [hidePassword,setHidePassword] = useState(false)
+  const [hidePassword, setHidePassword] = useState(false);
 
   const [modalVisible, setModalVisible] = React.useState(false);
   const [msgText, setMsgText] = React.useState("");
 
-  const dispatch = useDispatch()
+  const dispatch = useDispatch();
 
   const OnSignIn = () => {
     if (email === "" || password === "") {
@@ -39,7 +37,7 @@ export default function SignIn({ navigation }) {
       setModalVisible(true);
     } else {
       setProgress(true);
-      SignInRequest(email,password,callback,errorCallback,dispatch);
+      SignInRequest(email, password, callback, errorCallback, dispatch);
     }
   };
 
@@ -89,7 +87,7 @@ export default function SignIn({ navigation }) {
       >
         Log In
       </Text>
-      <View  style={styles.innerContainer}>
+      <View style={styles.innerContainer}>
         <Input
           mode="outlined"
           placeholder="Email"
@@ -97,25 +95,31 @@ export default function SignIn({ navigation }) {
           style={[styles.input, styles.layoutStyle, { marginBottom: "8%" }]}
           onChangeText={(text) => setEmail(text)}
         />
-        <View style={{flexDirection: "row",width: "100%",alignItems: "stretch"}}>
+        <View
+          style={{ flexDirection: "row", width: "100%", alignItems: "stretch" }}
+        >
           <Input
             secureTextEntry={hidePassword}
             mode="outlined"
             placeholder="Password"
             maxLength={12}
             outlineColor="transparent"
-            style={[styles.input, styles.layoutStyle,]}
+            style={[styles.input, styles.layoutStyle]}
             onChangeText={(text) => setPassword(text)}
           />
           <IconButton
-          style={{position: "absolute", right: "12%" }}
-          icon={ password.length > 0 && hidePassword ? "eye" : "eye-off"}
-          color={colors.PRIMARY_COLOR}
-          size={25}
-          onPress={() => hidePassword ? setHidePassword(false) : setHidePassword(true)}
-        />
+            style={{ position: "absolute", right: "12%" }}
+            icon={password.length > 0 && hidePassword ? "eye" : "eye-off"}
+            color={colors.PRIMARY_COLOR}
+            size={25}
+            onPress={() =>
+              hidePassword ? setHidePassword(false) : setHidePassword(true)
+            }
+          />
         </View>
-        {password.length > 0 ? <Text style={{fontSize: 12}}>Min. of 6 Character</Text> : null}
+        {password.length > 0 ? (
+          <Text style={{ fontSize: 12 }}>Min. of 6 Character</Text>
+        ) : null}
       </View>
 
       <ActivityIndicator
@@ -211,14 +215,15 @@ const styles = StyleSheet.create({
   bottom_image: {
     bottom: -30,
     right: "15%",
-  },layoutStyle: {
-          position: "relative",
-        },
-        input: {
-          paddingVertical: 12,
-          paddingHorizontal: 15,
-          backgroundColor: "#C2CEF1",
-          width: "90%",
-          borderRadius: 50
-        },
+  },
+  layoutStyle: {
+    position: "relative",
+  },
+  input: {
+    paddingVertical: 12,
+    paddingHorizontal: 15,
+    backgroundColor: "#C2CEF1",
+    width: "90%",
+    borderRadius: 50,
+  },
 });

@@ -2,7 +2,7 @@ import * as React from "react";
 import { View, StyleSheet } from "react-native";
 import colors from "../Constant/Color.json";
 
-export const Indicator = ({ step, selected, width,styles }) => {
+export const Indicator = ({ step, selected, width,styles,selectedColor }) => {
   let i = 0;
   let indicators = [];
 
@@ -37,7 +37,7 @@ export const Indicator = ({ step, selected, width,styles }) => {
                 indicatorWidth !== null
                   ? colors.NATURAL_COLOR.black
                   : item === selected
-                  ? colors.NATURAL_COLOR.black
+                  ? selectedColor
                   : colors.SECONDARY_COLOR,
               width:
                 indicatorWidth === null ? 8 : item === selected ? width : 8,

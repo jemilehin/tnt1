@@ -20,16 +20,13 @@ import ResidentAddress from "../Component/Formstep/ResidentAdress";
 
 import colors from "../Constant/Color.json";
 
-// import { AuthContext } from "../Component/context";
 import { Header } from "../Component/HeaderBack";
 import {
   CheckVerification,
   StartVerification,
   SignUpRequest,
 } from "../Redux/Member/actions";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import { MessageModal } from "../Component/Modal";
-
 const FormPages = (props) => {
   // console.log(props.phone)
   return (
@@ -42,7 +39,6 @@ const FormPages = (props) => {
         props.setSelected(e.nativeEvent.position + 1)
       }}
       onPageScrollStateChanged={(e) => {
-        console.log(e.nativeEvent.pageScrollState)
         if(e.nativeEvent.pageScrollState !== "dragging"){
           if(props.selected === 2 && props.phone === ""){
           alert("Enter all fields in personal details section.")}
@@ -163,10 +159,10 @@ export default function Registration({ navigation }) {
     if (polling_unit === "") {
       return setMsgText("Polling unit is required"), setModalVisible(true);
     }
-    if (addressValue === null) {
+    if (addressValue === "") {
       return setMsgText("Your address is required"), setModalVisible(true);
     }
-    if (password === null) {
+    if (password === "") {
       return setMsgText("Set a password"), setModalVisible(true);
     } else {
       // SignUpRequest(formData, callback, errorCallback);
@@ -177,16 +173,12 @@ export default function Registration({ navigation }) {
       if (!isOtpSent) {
         // setLoading(true)
         StartVerification(`+234${number}`, smsCallback, errCallback);
-        Toast.show("Wait while a code is being sent", {
-          duration: Toast.durations.LONG,
-        });
+        setMsgText("Wait while a code is being sent to the provided mobile number")
+        setModalVisible(true);
+        setTimeout(() => setModalVisible(false), 1000)
       } else {
         if (!isCodeVerified) {
           CheckVerification(`+234${number}`, OTP, VerifyCallback);
-          // setLoading(true);
-          Toast.show("Verifying Code!", {
-            duration: Toast.durations.SHORT,
-          });
         } else {
           // setLoading(true);
           SignUpRequest(formData, callback, errorCallback,dispatch);
@@ -221,10 +213,10 @@ export default function Registration({ navigation }) {
 
   const callback = (response) => {
     setLoading(false);
-    // signUp();
   };
 
   const errorCallback = (response) => {
+    console.log(response.message)
     setLoading(false);
     if (response.message === "500") {
       setMsgText("Email has been used");
@@ -321,7 +313,7 @@ export default function Registration({ navigation }) {
       >
         {keyboardStatus ? null : (
           <>
-            <Indicator step={3} selected={selected} width={14} />
+            <Indicator selectedColor={colors.NATURAL_COLOR.black} step={3} selected={selected} width={14} />
             <View>
               {selected !== 3 ? (
                 <TouchableOpacity

@@ -164,7 +164,7 @@ const styles = StyleSheet.create({
   },
   input: {
     padding: 8,
-    shadowColor: "#470000",
+    // shadowColor: "#470000",
     backgroundColor: "#eff3f8",
   },
 });

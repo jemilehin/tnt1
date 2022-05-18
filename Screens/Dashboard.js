@@ -17,7 +17,6 @@ import SnackBar from "react-native-snackbar-component";
 import { format } from "date-fns";
 
 import colors from "../Constant/Color.json";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import { URL } from "../helpers/api";
 
 export const Dashboard = ({ navigation, route }) => {
@@ -29,7 +28,6 @@ export const Dashboard = ({ navigation, route }) => {
   const [response, setResponse] = useState(true);
 
   React.useEffect(() => {
-    // let isMounted = true;
     const unsubscribe = navigation.addListener('focus', () => {
       fetch(`${URL}allMessage`)
       .then((res) => res.json())
@@ -47,11 +45,6 @@ export const Dashboard = ({ navigation, route }) => {
     let skipped = skip < limit ? skip + 5 : skip;
     if (skipped < limit) {
       setSkip(skipped);
-      // fetch(`https://dummyjson.com/posts?limit=10&skip=${skipped}`)
-      //   .then((res) => res.json())
-      //   .then((data) => {
-      //     setMessages(data.posts);
-      //   });
     } else {
       alert("no more message");
     }
@@ -65,12 +58,6 @@ export const Dashboard = ({ navigation, route }) => {
       setRefresh(false);
     } else {
       setSkip(prevSkipped);
-      // fetch(`${URL}allMessage`)
-      //   .then((res) => res.json())
-      //   .then((data) => {
-      //     setMessages(data.posts);
-      //     setRefresh(false)
-      //   });
     }
   };
 
@@ -80,7 +67,7 @@ export const Dashboard = ({ navigation, route }) => {
       <View style={styles.container}>
         {messages.length > 0 && !response ? (
           <FlatList
-            data={messages}
+            data={messages.reverse()}
             style={{ width: "100%" }}
             renderItem={({ item }) => (
               <Card
@@ -105,7 +92,7 @@ export const Dashboard = ({ navigation, route }) => {
                 </Text>
               </View>
             )}
-            onEndReachedThreshold={0.3}
+            onEndReachedThreshold={1}
             onEndReached={() => fetchMoreData()}
             onRefresh={() => prevMessages()}
             keyExtractor={(item) => item.id}

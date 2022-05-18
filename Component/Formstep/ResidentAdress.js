@@ -10,7 +10,6 @@ import {
   KeyboardAvoidingView,
   ActivityIndicator
 } from "react-native";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Picker } from "@react-native-picker/picker";
 import * as ImagePicker from "expo-image-picker";
 import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
@@ -108,10 +107,27 @@ export default function ResidentAddress(props) {
   };
   props.selected === 1 ? refineState() : null;
 
+
+  const refineData = (data, type) => {
+    for (const item in data) {
+      if (type === "LGA") {
+        lgaArray.push({ id: item, name: data[item] });
+      }
+      if (type === "WARDS") {
+        wardArray.push({ id: item, name: data[item] });
+      }
+      if (type === "PU") {
+        pollingUnitArr.push({ id: item, name: data[item]});
+      }
+    }
+  };
+  selectedStatevalue !== null ? refineData(lgas.LocalGovernment, "LGA") : "Do nothing";
+  selectedLgas !== null ? refineData(wards.ward, "WARDS") : "Do nothing";
+  selectedWard !== null ? refineData(pollingUnit.PollingUnits, "PU") : "Do nothing";
   const getDataType = (value, type) => {
     if (type === "STATE_TO_LGA") {
       lgaArray = [];
-      wardArray = [];
+      wardArray = []
       pollingUnitArr = [];
       stateArr.find((element) => {
         if (element.name === value) {
@@ -120,6 +136,7 @@ export default function ResidentAddress(props) {
             .then((lga) => setLgas(JSON.parse(lga)));
         }
       });
+      console.log(wardArray)
     }
     if (type === "LGA_TO_WARD") {
       wardArray = [];
@@ -143,23 +160,6 @@ export default function ResidentAddress(props) {
       });
     }
   };
-
-  const refineData = (data, type) => {
-    for (const item in data) {
-      if (type === "LGA") {
-        lgaArray.push({ id: item, name: data[item] });
-      }
-      if (type === "WARDS") {
-        wardArray.push({ id: item, name: data[item] });
-      }
-      if (type === "PU") {
-        pollingUnitArr.push({ id: item, name: data[item]});
-      }
-    }
-  };
-  selectedStatevalue !== null ? refineData(lgas.LocalGovernment, "LGA") : "Do nothing";
-  selectedLgas !== null ? refineData(wards.ward, "WARDS") : "Do nothing";
-  selectedWard !== null ? refineData(pollingUnit.PollingUnits, "PU") : "Do nothing";
   return (
     <>
       <View style={[styles.innerContainer, styles.layoutStyle]}>
@@ -177,7 +177,7 @@ export default function ResidentAddress(props) {
             <Picker
               style={[styles.input, styles.layoutStyle]}
               selectedValue={selectedStatevalue}
-              onValueChange={async (itemValue, itemIndex) => {
+              onValueChange={(itemValue, itemIndex) => {
                 props.setStateValue(itemValue);
                 getDataType(itemValue, "STATE_TO_LGA");
                 setSelectedStatevalue(itemValue);
@@ -247,7 +247,7 @@ export default function ResidentAddress(props) {
             <Picker
               style={[styles.input, styles.layoutStyle]}
               selectedValue={selectedWard}
-              onValueChange={async (itemValue, itemIndex) => {
+              onValueChange={(itemValue, itemIndex) => {
                 getDataType(itemValue, "WARD_TO_POLLINGUNIT");
                 setSelectedWard(itemValue);
                 props.setWardValue(itemValue);
@@ -284,7 +284,7 @@ export default function ResidentAddress(props) {
             <Picker
               style={[styles.input, styles.layoutStyle]}
               selectedValue={selectedPollingUnit}
-              onValueChange={async (itemValue, itemIndex) => {
+              onValueChange={(itemValue, itemIndex) => {
                 props.setPollingUnitValue(itemValue);
                 setSelectedPollingUnit(itemValue);
               }}
@@ -402,14 +402,6 @@ const styles = StyleSheet.create({
   input: {
     height: 40,
     padding: 5,
-    // shadowColor: "#470000",
-    // shadowOffset: {
-    //   width: 0,
-    //   height: 1,
-    // },
-    // shadowOpacity: 1,
-    // shadowRadius: 0.5,
-    // elevation: 2,
     backgroundColor: "#eff3f8",
   },
   buttonPicker: {

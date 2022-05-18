@@ -13,8 +13,6 @@ import  BottomNavigation from "./Component/BottomTab";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { RootSiblingParent } from "react-native-root-siblings";
 
-// import { AuthContext } from "./Component/context";
-
 import { Provider, useSelector } from 'react-redux';
 import store from './Redux/Store';
 
@@ -25,14 +23,6 @@ import { FullMessage } from "./Screens/Message";
 import { MemberProfile } from "./Screens/Profile";
 import ChatRoom from "./Screens/ChatRoom";
 import { LandingScreen } from "./Screens/SetUpScreen";
-
-// Firebase references
-// const app = getApp();
-
-// Double-check that we can run the example
-// if (!app?.options || Platform.OS === 'web') {
-//   throw new Error('This example only works on Android or iOS, and requires a valid Firebase config.');
-// }
 
 const Stack = createNativeStackNavigator();
 // const Fonts = {
@@ -45,20 +35,6 @@ const Stack = createNativeStackNavigator();
 
 const App = ({ navigation, route }) => {
   const token = useSelector((state) => state.reducers.token)
-
-  // const [isloggedIn, setIsLoggedIn] = React.useState(false);
-  // const [firstLaunching, setLaunching] = React.useState(false);
-  // const authContext = React.useMemo(() => ({
-  //   signIn: () => {
-  //     setIsLoggedIn(true);
-  //   },
-  //   signUp: () => {
-  //     setIsLoggedIn(true);
-  //   },
-  //   signOut: () => {
-  //     setIsLoggedIn(false);
-  //   },
-  // }));
 
   return (
       // <AuthContext.Provider value={authContext}>
@@ -117,8 +93,17 @@ const App = ({ navigation, route }) => {
                 name="Profile"
                 component={MemberProfile}
                 options={{
-                  headerShown: false,
-                  headerBackVisible: true,
+                  title: "Profile",
+                  headerStyle: {
+                    backgroundColor: colors.PRIMARY_COLOR,
+                  },
+                  headerTintColor: '#fff',
+                  headerTitleStyle: {
+                    fontWeight: 'bold',
+                  },
+                  headerTitleAlign: "center",
+                  headerShadowVisible: false,
+                  
                 }}
               />
 

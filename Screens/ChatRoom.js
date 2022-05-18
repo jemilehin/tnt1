@@ -12,7 +12,8 @@ import {
   Keyboard,
   TouchableWithoutFeedback,
   Animated,
-  Image,Dimensions
+  Image,Dimensions,
+  Modal
 } from "react-native";
 import Toast from "react-native-root-toast";
 import { IconButton } from "react-native-paper";
@@ -34,10 +35,6 @@ const ChatRoom = ({ navigation }) => {
 
   const screenLength = Dimensions.get('screen').height
 
-  // useEffect(() => {
-  //   return () => {};
-  // });
-
   const launchImageLibrary = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.All,
@@ -46,6 +43,7 @@ const ChatRoom = ({ navigation }) => {
 
     if (!result.cancelled) {
       setImage(result.uri);
+      setResultPicked(true)
       animationResultControl();
       animationControl()
     } else {
@@ -112,13 +110,13 @@ const ChatRoom = ({ navigation }) => {
 
   // animating picked result container to view image selected from library
   function animationResultControl() {
-    // if (!resultPicked) {
+    if (!resultPicked) {
       Animated.timing(displayResultOpacity, {
         toValue: 1,
         duration: 300,
         useNativeDriver: true,
       }).start();
-    // }
+    }
   }
 
   function endAnimationResultControl() {
@@ -130,48 +128,64 @@ const ChatRoom = ({ navigation }) => {
   }
   
   const [success,setSuccessful] = useState(null)
-  // const [messageSent, SetMessageIsSent] = useState(false)
 
   const callback = (response) => {
-    if(response === 200){
       setMsgInput("")
+      messages.push(response.message)
+      setMessages([...messages])
       setSuccessful(true)
-      // SetMessageIsSent(true)
       Toast.show("Message sent", {
         duration: Toast.durations.SHORT,
       })
-    }else{
-      setSuccessful(false)
-      Toast.show("Message not sent", {
-        duration: Toast.durations.SHORT,
-      })
-    }
   }
 
   function DisplayPickedResult(props) {
+
+    const styleBtn = {
+      width: "50%",
+      height: 50,
+      justifyContent: "center",
+      alignItems: "center"
+    }
+
     return (
-      <Animated.View style={props.styles}>
-        <Image style={{ resizeMode: "cover" }} source={{ uri: props.data }} />
-        <View>
+      <Modal
+        visible={resultPicked}
+        onRequestClose={resultPicked}  
+      >
+      <View style={props.styles}>
+        <Image
+          style={{width: "100%",height: "100%"}}
+          source={{uri:props.data}}
+        />
+        <View style={{
+          position: "relative",
+          flex: 1,
+          flexDirection: "row",
+          justifyContent: "flex-start"
+        }}>
           <TouchableOpacity
+          style={
+            [styleBtn,{backgroundColor: "green"}]
+          }
           onPress={() => {
-            message = { title: "", description: "", file: props.data };
-            messages.push(message);
+            sendMessage(props.data,msgInput,callback)
+            setResultPicked(false)
           }}
-          activeOpacity={0.5}
         >
-          <IconButton icon="send" size={30} color={colors.SECONDARY_COLOR} />
+        <Text style={{color: "#ffffff"}}>Send</Text>
         </TouchableOpacity>
         <TouchableOpacity
-          onPress={() => {
-            endAnimationResultControl()
-          }}
-          activeOpacity={0.5}
+        style={[styleBtn,{
+          backgroundColor: "red",
+        }]}
+        onPress={() => setResultPicked(false)}
         >
-          <Text>Cancel</Text>
+          <Text style={{color: "#ffffff"}}>Cancel</Text>
         </TouchableOpacity>
         </View>
-      </Animated.View>
+      </View>
+      </Modal>
     );
   }
 
@@ -196,7 +210,7 @@ const ChatRoom = ({ navigation }) => {
                     <View style={styles.receiver}>
                       {/* <Avatar
                         rounded
-                        source={{ uri: message.photoURL }}
+                        source={{ uri: message.slug }}
                         size={30}
                         position="absolute"
                         bottom={-15}
@@ -207,13 +221,15 @@ const ChatRoom = ({ navigation }) => {
                           right: -5,
                         }}
                       /> */}
+                      {/* <Image source={{uri:  message.slug}} /> */}
                       <Text style={styles.receiverText}>{message.message}</Text>
+                    
                     </View>
                   </View>
                 ) : (
                   <View key={message.id} style={{ alignItems: "flex-start" }}>
                     <View style={styles.sender}>
-                      <Avatar
+                      {/* <Avatar
                         rounded
                         source={{ uri: message.photoURL }}
                         size={30}
@@ -225,11 +241,11 @@ const ChatRoom = ({ navigation }) => {
                           bottom: -15,
                           right: -5,
                         }}
-                      />
+                      /> */}
                       <Text style={styles.senderText}>{message.message}</Text>
-                      <Text style={styles.senderName}>
+                      {/* <Text style={styles.senderName}>
                         {message.displayName}
-                      </Text>
+                      </Text> */}
                     </View>
                   </View>
                 )
@@ -300,17 +316,16 @@ const ChatRoom = ({ navigation }) => {
               styles={[
                 styles.preview_image,
                 {
-                  opacity: displayResultOpacity,
-                  transform: [
-                    {
-                      translateY: displayResultOpacity.interpolate({
-                        inputRange: [0, 1],
-                        outputRange: [0, screenLength],
-                      }),
-                    },
-                    { translateX: 5 },
-                  ],
-                  bottom: -screenLength,
+                  // opacity: displayResultOpacity,
+                  // transform: [
+                  //   {
+                  //     translateY: displayResultOpacity.interpolate({
+                  //       inputRange: [0, 1],
+                  //       outputRange: [0, 1],
+                  //     }),
+                  //   },
+                  //   { translateX: 5 },
+                  // ],
                 },
               ]}
             />
@@ -342,6 +357,7 @@ const styles = StyleSheet.create({
     color: "gray",
     borderRadius: 30,
     width: "100%",
+    zIndex: 11
   },
   receiverText: {
     color: "black",
@@ -352,7 +368,7 @@ const styles = StyleSheet.create({
     color: "white",
     fontWeight: "500",
     marginLeft: 10,
-    marginBottom: 15,
+    // marginBottom: 15,
   },
   receiver: {
     padding: 15,
@@ -365,12 +381,12 @@ const styles = StyleSheet.create({
     position: "relative",
   },
   sender: {
-    padding: 15,
+    padding: 5,
     backgroundColor: "#2b68e6",
     alignItems: "flex-start",
-    borderRadius: 20,
-    marginLeft: 15,
-    marginBottom: 20,
+    borderRadius: 15,
+    marginLeft: 10,
+    marginBottom: 1,
     maxWidth: "80%",
     position: "relative",
   },
@@ -388,6 +404,7 @@ const styles = StyleSheet.create({
   icon: {
     position: "absolute",
     right: "7%",
+    zIndex: 12
   },
   pickerContainer: {
     position: "absolute",
@@ -397,7 +414,8 @@ const styles = StyleSheet.create({
     width: "90%",
     justifyContent: "space-between",
     padding: 15,
-    borderRadius: 5,zIndex: -1
+    borderRadius: 5,
+    zIndex: 10
   },
   pickerButton: {
     borderRadius: 50,
@@ -414,9 +432,12 @@ const styles = StyleSheet.create({
     backgroundColor: "white",
   },
   preview_image: {
+    // flex: 2,
+    // backgroundColor: 'grey',
+    // zIndex: 100,
     position: "absolute",
-    flex: 1,
-    borderTopEndRadius: 50,
-    backgroundColor: 'grey'
+    // borderWidth: 1,
+    width: "100%",
+    height: "80%"
   },
 });

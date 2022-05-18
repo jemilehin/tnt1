@@ -19,6 +19,8 @@ export const reducers = (state = initialState, action) => {
       return {...state};
     case 'SIGNOUT_SUCCESS':
       return {...state, token: action.payload.token, user: action.payload.user}
+    case 'UPDATE_PROFILE':
+      return {...state, user: action.user}
     default:
       return state
   }
