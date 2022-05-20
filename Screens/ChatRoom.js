@@ -15,6 +15,7 @@ import {
   Image,Dimensions,
   Modal
 } from "react-native";
+import { connect } from "react-redux";
 import Toast from "react-native-root-toast";
 import { IconButton } from "react-native-paper";
 import colors from "../Constant/Color.json";
@@ -22,7 +23,7 @@ import colors from "../Constant/Color.json";
 import * as ImagePicker from "expo-image-picker";
 import { sendMessage } from "../Redux/Member/actions";
 
-const ChatRoom = ({ navigation }) => {
+const ChatRoom = ({ navigation,user }) => {
   const [messages, setMessages] = React.useState([]);
   const [msgInput, setMsgInput] = React.useState("");
   const [userType, setUserType] = React.useState("user");
@@ -31,9 +32,6 @@ const ChatRoom = ({ navigation }) => {
   const [image, setImage] = React.useState(null);
   const opacity = React.useRef(new Animated.Value(0)).current;
   const displayResultOpacity = React.useRef(new Animated.Value(0)).current;
-  let message = React.useRef({});
-
-  const screenLength = Dimensions.get('screen').height
 
   const launchImageLibrary = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
@@ -303,6 +301,7 @@ const ChatRoom = ({ navigation }) => {
               <TouchableOpacity
                 onPress={() => sendMessage(image,msgInput,callback)}
                 activeOpacity={0.5}
+                style={{zIndex: 100}}
               >
                 <IconButton
                   icon="send"
@@ -336,7 +335,10 @@ const ChatRoom = ({ navigation }) => {
   );
 };
 
-export default ChatRoom;
+const mapStateToProps = state => {
+  return {user: state.reducers.user}
+}
+export default connect(mapStateToProps, null)(ChatRoom);
 
 const styles = StyleSheet.create({
   container: {
@@ -399,7 +401,7 @@ const styles = StyleSheet.create({
   passwordContainer: {
     flexDirection: "row",
     paddingBottom: 10,
-    width: "85%",
+    width: "90%",
   },
   icon: {
     position: "absolute",
@@ -415,7 +417,7 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     padding: 15,
     borderRadius: 5,
-    zIndex: 10
+    zIndex: 1
   },
   pickerButton: {
     borderRadius: 50,

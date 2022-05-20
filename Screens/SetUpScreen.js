@@ -11,15 +11,19 @@ import {
   Image,
   Dimensions,
   ScrollView,
+  Platform
 } from "react-native";
 import { Indicator } from "../Component/Indicator";
 import PagerView from "react-native-pager-view";
-import { color } from "react-native/Libraries/Components/View/ReactNativeStyleAttributes";
+import SliderView from "../Component/Slider";
+
+
+const WIDTH = Dimensions.get("window").width*0.8
+const MARGIN = WIDTH * 0.1
 
 export const LandingScreen = ({ navigation }) => {
   const currentPosition = useRef(0);
   const [selected, setSelected] = useState(1);
-  // const width = Dimensions.get("window").width
   const features = [
     {
       src: require("../assets/images/regular_information.png"),
@@ -35,11 +39,14 @@ export const LandingScreen = ({ navigation }) => {
     },
   ];
 
+  console.log(WIDTH * 2 + MARGIN)
+
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar />
       <Text style={styles.text}>Welcome</Text>
       <View style={[styles.slider_container]}>
+        {/* <SliderView items={features} viewAttribute={styles.info_container} /> */}
         <ScrollView
           ref={currentPosition}
           pagingEnabled
@@ -47,19 +54,19 @@ export const LandingScreen = ({ navigation }) => {
           showsHorizontalScrollIndicator={false}
           style={{ flexDirection: "row" }}
           onScroll={(event) => {
+            // console.log(event.nativeEvent.contentOffset.x)
             if(event.nativeEvent.contentOffset.x === 0){
               setSelected(1)
-            }if(event.nativeEvent.contentOffset.x === 320){
+            }if(event.nativeEvent.contentOffset.x === WIDTH + MARGIN){
               setSelected(2)
-            }if(event.nativeEvent.contentOffset.x === 640){
+            }if(event.nativeEvent.contentOffset.x === WIDTH * 2 + MARGIN){
               setSelected(3)
             }
-          }
-          //  console.log() 
-          }
+          }}
         >
           {features.map((item, index) => (
-            <View style={[styles.info_container]} key={index+1}>
+            <View style={[styles.info_container,{
+              width: WIDTH}]} key={index+1}>
               <Image style={{ width: 100, height: 100 }} source={item.src} />
               <Text style={styles.feature_text}>{item.title}</Text>
             </View>
@@ -110,9 +117,7 @@ const styles = StyleSheet.create({
   text: {
     fontSize: 25,
     fontWeight: "bold",
-    // width: "70%",
     top: "13%",
-    // left: "-4%",
     color: colors.NATURAL_COLOR.white,
     lineHeight: 30,
     position: "relative",
@@ -128,9 +133,8 @@ const styles = StyleSheet.create({
     alignItems: "center",
     backgroundColor: colors.NATURAL_COLOR.white,
     paddingVertical: 12,
-    width: "50%",
+    width: "40%",
     borderRadius: 50,
-    left: "-4%",
   },
   shadow: {
     shadowColor: "#470000",
@@ -161,10 +165,9 @@ const styles = StyleSheet.create({
   },
   info_container: {
     flexDirection: "row",
-    width: "26.8%",
     alignItems: "center",
     borderColor: colors.NATURAL_COLOR.white,
-    marginRight: 0.2 * 100,
+    marginRight: MARGIN,
     paddingHorizontal: 10,
   },
   slider_container: {

@@ -20,7 +20,7 @@ import colors from "./Constant/Color.json";
 
 import signIn from "./Screens/SignIn";
 import { FullMessage } from "./Screens/Message";
-import { MemberProfile } from "./Screens/Profile";
+import MemberProfile from "./Screens/Profile";
 import ChatRoom from "./Screens/ChatRoom";
 import { LandingScreen } from "./Screens/SetUpScreen";
 

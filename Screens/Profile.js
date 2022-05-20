@@ -5,29 +5,25 @@ import {
   StyleSheet,
   SafeAreaView,
   ScrollView,
-  Button,
-  TextInput,
   TouchableOpacity,
   Image,
   ActivityIndicator,
-  Modal,
   Dimensions,
 } from "react-native";
+import { connect } from "react-redux";
 import { IconButton } from "react-native-paper";
-import { Snackbar } from "react-native-paper";
+import SnackBar from "react-native-snackbar-component";
 
 import { Picker } from "@react-native-picker/picker";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as ImagePicker from "expo-image-picker";
 
 import colors from "../Constant/Color.json";
 import { memberProfileUpdate } from "../Redux/Member/actions";
 import { Header } from "../Component/HeaderBack";
 import { Input } from "../Component/Input";
-import { connect } from "react-redux";
 
-export const MemberProfile = ({ navigation, route }) => {
-  const [member, setMember] = React.useState({});
+const MemberProfile = ({ navigation, route, user }) => {
+  const [member, setMember] = React.useState(user);
   const [profileImg, setProfileImg] = React.useState(null);
   const [snackMessage, setSnackMessage] = React.useState(false);
   const [loading, setLoading] = React.useState(false);
@@ -35,14 +31,14 @@ export const MemberProfile = ({ navigation, route }) => {
 
   React.useLayoutEffect(() => {
     navigation.setOptions({
-      headerRight: () => (
-        <IconButton
-          onPress={() => console.log("hi")}
-          icon="shield-edit"
-          size={30}
-          color={colors.NATURAL_COLOR.white}
-        />
-      ),
+      // headerRight: () => (
+      //   <IconButton
+      //     onPress={() => console.log("hi")}
+      //     icon="shield-edit"
+      //     size={30}
+      //     color={colors.NATURAL_COLOR.white}
+      //   />
+      // ),
       headerLeft: () => (
         <IconButton
           onPress={() => navigation.goBack()}
@@ -51,14 +47,7 @@ export const MemberProfile = ({ navigation, route }) => {
         />
       )
     });
-
-    setMemberData();
   }, [navigation]);
-
-  const setMemberData = () => {
-    setMember(route.params.user);
-    setProfileImg(route.params.user.img);
-  };
 
   Header("LEFT", navigation, colors.NATURAL_COLOR.white);
 
@@ -86,15 +75,18 @@ export const MemberProfile = ({ navigation, route }) => {
   };
 
   const errCalback = (err) => {
-    console.log("err", err);
+    console.log("error", err);
     setLoading(false);
     setSnackMessage(true);
     setErr("Update not successful");
-    error();
+    error(err);
   };
 
   const error = () => {
-    setTimeout(() => setSnackMessage(false), 1500);
+    console.log("step 1")
+    setTimeout(() => {
+      console.log("step 2")
+      setSnackMessage(false)}, 1500);
   };
 
   return (
@@ -280,26 +272,22 @@ export const MemberProfile = ({ navigation, route }) => {
           color={colors.SECONDARY_COLOR_VARIANT}
           size="large"
         />
-      ) : (
-        <Snackbar
-          visible={snackMessage}
-          onDismiss={() => setSnackMessage(false)}
-          style={{ backgroundColor: colors.TEXT_BUTTON_COLOR }}
-        >
-          <View>
-            <Text>{isErr}</Text>
-          </View>
-        </Snackbar>
-      )}
+      ) : 
+      null
+      }
+      <SnackBar
+        visible={snackMessage}
+        textMessage={isErr}
+      />
     </SafeAreaView>
   );
 };
 
-const mapStateToProps = (state) => {
-  user: state.user
+const mapStateToProps = state => {
+  return {user: state.reducers.user}
 }
 
-// export default connect(mapStateToProps,null)()
+export default connect(mapStateToProps, null)(MemberProfile)
 
 const styles = StyleSheet.create({
   layoutStyle: {

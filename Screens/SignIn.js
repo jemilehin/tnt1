@@ -100,7 +100,6 @@ export default function SignIn({ navigation }) {
         >
           <Input
             secureTextEntry={hidePassword}
-            mode="outlined"
             placeholder="Password"
             maxLength={12}
             outlineColor="transparent"

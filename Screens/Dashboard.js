@@ -11,13 +11,20 @@ import {
   ActivityIndicator,
   Dimensions,
 } from "react-native";
+import Animated, {
+  withSpring,
+  useAnimatedStyle,
+  useSharedValue,
+} from "react-native-reanimated";
 import { FAB } from "react-native-paper";
 import Card from "../Component/Card";
 import SnackBar from "react-native-snackbar-component";
 import { format } from "date-fns";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 import colors from "../Constant/Color.json";
 import { URL } from "../helpers/api";
+import { Platform } from "react-native-web";
 
 export const Dashboard = ({ navigation, route }) => {
   const [messages, setMessages] = React.useState([]);
@@ -26,40 +33,84 @@ export const Dashboard = ({ navigation, route }) => {
   const [limit, setLimit] = useState(0);
   const [refresh, setRefresh] = useState(false);
   const [response, setResponse] = useState(true);
+  const [firstEntry,setFirstEntry] = useState('0')
 
-  React.useEffect(() => {
-    const unsubscribe = navigation.addListener('focus', () => {
-      fetch(`${URL}allMessage`)
+  const offset = useSharedValue(0.9);
+
+  const customSpringStyles = useAnimatedStyle(() => {
+    return {
+      transform: [
+        {
+          translateX: withSpring(offset.value * 255, {
+            damping: 20,
+            stiffness: 90,
+          }),
+        },
+      ],
+    };
+  });
+
+  const checkUserTime = async () => {
+    try {
+      const value = await AsyncStorage.getItem('@firstEntry');
+      if(value === null) {
+        // do something
+        await AsyncStorage.setItem('@firstEntry', '1')
+        setFirstEntry('1')
+        offset.value = 0
+      }
+    } catch(e) {
+      // error reading value
+      console.log(e)
+    }
+  }
+
+  const getMessages = () => {
+    fetch(`${URL}allMessage`)
       .then((res) => res.json())
       .then((data) => {
         setMessages(data.message);
         setResponse(false);
       })
-      .catch((e) => setResponse(false));})
-    
-      setTimeout(() => setSnackMessage(false), 1500);
-      return unsubscribe ;
+      .catch((e) => setResponse(false));
+  };
+
+  React.useEffect(() => {
+    checkUserTime()
+    const unsubscribe = navigation.addListener("focus", () => {
+      getMessages();
+    });
+    firstEntry === '0' ? setTimeout(() => offset.value = 0.9, 2500) : "Do nothing"
+    setTimeout(() => setSnackMessage(false), 1500);
+    return unsubscribe;
   }, []);
 
+
   const fetchMoreData = () => {
-    let skipped = skip < limit ? skip + 5 : skip;
-    if (skipped < limit) {
-      setSkip(skipped);
-    } else {
-      alert("no more message");
-    }
+    setRefresh(true);
+    fetch(`${URL}allMessage`)
+      .then((res) => res.json())
+      .then((data) => {
+        setMessages(data.message);
+        setRefresh(false);
+      })
+      .catch((e) => setRefresh(false));
   };
 
-  const prevMessages = () => {
-    let prevSkipped = skip > 0 ? skip - 5 : skip;
-    setRefresh(true);
-    if (prevSkipped === 0) {
-      alert("no new message");
-      setRefresh(false);
-    } else {
-      setSkip(prevSkipped);
-    }
-  };
+  // setInterval(getMessages, 300000);
+
+  const OnFirstEntry = () => {
+    return (
+      <Animated.View style={[styles.msgContainer,customSpringStyles ]}>
+        <View style={styles.boxMsg}>
+          <Text style={{fontSize: 15, color: "white", fontWeight: "700"}}>Click here to send messages to the administrator</Text>
+        </View>
+        <View style={styles.shapeContainer}>
+          <View style={styles.shape}></View>
+        </View>
+      </Animated.View>
+    )
+  }
 
   return (
     <SafeAreaView style={styles.safeContainer}>
@@ -76,11 +127,24 @@ export const Dashboard = ({ navigation, route }) => {
                   navigation.navigate("Message", { messageId: item.id });
                 }}
               >
-                <View style={{flexDirection: "row", justifyContent: "space-between" }}>
-                  <Text style={[styles.item,{fontWeight: "700"}]}>{item.title}</Text>
-                  <Text style={{fontWeight: "500"}}>{format(new Date(item.created_at),"MMM, dd")}</Text>
+                <View
+                  style={{
+                    flexDirection: "row",
+                    justifyContent: "space-between",
+                  }}
+                >
+                  <Text style={[styles.item, { fontWeight: "700" }]}>
+                    {item.title}
+                  </Text>
+                  <Text style={{ fontWeight: "500" }}>
+                    {item ? format(new Date(item.created_at), "MMM, dd") : null}
+                  </Text>
                 </View>
-                <Text style={styles.decription}>{item.content.length > 30 ? item.content.slice(0,32)+"..." : item.content}</Text>
+                <Text style={styles.decription}>
+                  {item.content.length > 30
+                    ? item.content.slice(0, 32) + "..."
+                    : item.content}
+                </Text>
               </Card>
             )}
             ItemSeparatorComponent={() => <View style={{ height: 5 }} />}
@@ -92,9 +156,7 @@ export const Dashboard = ({ navigation, route }) => {
                 </Text>
               </View>
             )}
-            onEndReachedThreshold={1}
-            onEndReached={() => fetchMoreData()}
-            onRefresh={() => prevMessages()}
+            onRefresh={() => fetchMoreData()}
             keyExtractor={(item) => item.id}
             refreshing={refresh}
             ListFooterComponent={() => {
@@ -126,11 +188,14 @@ export const Dashboard = ({ navigation, route }) => {
           </View>
         )}
         <SnackBar visible={snackMessage} textMessage="Login successful" />
+        <OnFirstEntry />
         <FAB
           style={styles.fab}
           large
           icon="message"
-          onPress={() => navigation.navigate("Chatroom")}
+          onPress={() => 
+            navigation.navigate("Chatroom")
+          }
         />
       </View>
     </SafeAreaView>
@@ -154,21 +219,50 @@ const styles = StyleSheet.create({
     right: 0,
     bottom: 0,
     backgroundColor: colors.PRIMARY_COLOR,
+    zIndex:200
   },
   item: {
     fontSize: 20,
     fontWeight: "500",
-    color: "#4F4F4F"
+    color: "#4F4F4F",
   },
 
   card: {
     flexDirection: "column",
     justifyContent: "flex-start",
-    paddingVertical: 13
+    paddingVertical: 13,
     // height: 200,
     // width: Dimensions.get("window").width,
     // backgroundColor: "#f18484",
     // justifyContent: "center", //Centered vertically
     // alignItems: "center", // Centered horizontally
   },
+  msgContainer:{
+    zIndex:100,
+    position: "absolute",
+    top: "71%",
+    right: "2%",
+    width: "60%",
+  },
+  boxMsg: {
+    paddingVertical: 15,
+    paddingLeft: 15,
+    borderRadius: 100,
+    backgroundColor: "#0000ff",
+  },
+  shape:{
+    height: 0,
+    width: 0,
+    borderTopColor: "#0000ff",
+    borderLeftWidth: 18,
+    borderRightWidth: 18,
+    borderTopWidth: 20,
+    borderLeftColor: "transparent",
+    borderRightColor: "transparent",
+  },
+  shapeContainer: {
+    position: "absolute",
+    right: "8%",
+    top: "90%"
+  }
 });

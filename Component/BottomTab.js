@@ -23,7 +23,7 @@ const BottomNavigation = ({ navigation,route,user }) => {
     navigation.setOptions({
       headerRight: () => (
         <IconButton
-          onPress={() => navigation.navigate("Profile",{user:user})}
+          onPress={() => navigation.navigate("Profile")}
           icon="account"
           size={30}
           color={colors.NATURAL_COLOR.white}
