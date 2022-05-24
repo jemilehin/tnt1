@@ -31,14 +31,6 @@ const MemberProfile = ({ navigation, route, user }) => {
 
   React.useLayoutEffect(() => {
     navigation.setOptions({
-      // headerRight: () => (
-      //   <IconButton
-      //     onPress={() => console.log("hi")}
-      //     icon="shield-edit"
-      //     size={30}
-      //     color={colors.NATURAL_COLOR.white}
-      //   />
-      // ),
       headerLeft: () => (
         <IconButton
           onPress={() => navigation.goBack()}
@@ -75,7 +67,6 @@ const MemberProfile = ({ navigation, route, user }) => {
   };
 
   const errCalback = (err) => {
-    console.log("error", err);
     setLoading(false);
     setSnackMessage(true);
     setErr("Update not successful");
@@ -83,16 +74,13 @@ const MemberProfile = ({ navigation, route, user }) => {
   };
 
   const error = () => {
-    console.log("step 1")
     setTimeout(() => {
-      console.log("step 2")
       setSnackMessage(false)}, 1500);
   };
 
   return (
     <SafeAreaView style={{backgroundColor: colors.NATURAL_COLOR.white}}>
       <View style={[styles.innerContainer, styles.layoutStyle]}>
-        {/* <Text style={[styles.header, styles.fonts]}>Profile</Text> */}
         <View style={{ position: "relative",}}>
           <View
             style={{
@@ -181,10 +169,6 @@ const MemberProfile = ({ navigation, route, user }) => {
           <Picker
             style={[styles.input, styles.layoutStyle]}
             enabled={false}
-            onValueChange={(itemValue, itemIndex) =>
-              // setSelectedLanguage(itemValue)
-              console.log("Gender is:", itemValue)
-            }
           >
             <Picker.Item label={member ? member.gender : ""} />
           </Picker>
@@ -207,9 +191,6 @@ const MemberProfile = ({ navigation, route, user }) => {
           <Text style={[styles.textAttribute, styles.fonts]}>LGA</Text>
           <Picker
             style={[styles.input, styles.layoutStyle]}
-            onValueChange={(itemValue, itemIndex) =>
-              console.log("Gender is:", itemValue)
-            }
             enabled={false}
           >
             <Picker.Item label={member ? member.lg : ""} />
@@ -220,9 +201,6 @@ const MemberProfile = ({ navigation, route, user }) => {
           <Text style={[styles.textAttribute, styles.fonts]}>Ward</Text>
           <Picker
             style={[styles.input, styles.layoutStyle]}
-            onValueChange={(itemValue, itemIndex) =>
-              console.log("Gender is:", itemValue)
-            }
             enabled={false}
           >
             <Picker.Item label={member ? member.ward : ""} />

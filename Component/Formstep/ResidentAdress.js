@@ -136,7 +136,6 @@ export default function ResidentAddress(props) {
             .then((lga) => setLgas(JSON.parse(lga)));
         }
       });
-      console.log(wardArray)
     }
     if (type === "LGA_TO_WARD") {
       wardArray = [];

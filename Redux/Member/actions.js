@@ -23,7 +23,6 @@ const updateProfile = (user) => {
 }
 
 export const SignUpRequest = async (formdata, callback, errorCallback,dispatch) => {
-  // console.log(formdata);
   var requestOptions = {
     method: "POST",
     body: formdata,
@@ -80,7 +79,6 @@ export const memberProfileUpdate = async (
   callback,
   errorCallback,
 ) => {
-  // console.log(data)
   await fetch(`${URL}update/${id}`,data)
   .then(res => {
     if(res.ok){
@@ -90,8 +88,7 @@ export const memberProfileUpdate = async (
     }
   })
   .then(data => {
-    console.log(data)
-    callback(response)
+    callback(data)
   })
   .catch(error => errorCallback(error))
 };

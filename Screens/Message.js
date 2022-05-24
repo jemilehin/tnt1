@@ -25,7 +25,6 @@ export const FullMessage = ({ navigation, route }) => {
     fetch(`${URL}viewMessage/${messageId}`)
       .then((res) => res.text())
       .then((res) => {
-        // console.log(res)
         setMessage(JSON.parse(res));
         setLoading(true);
       });

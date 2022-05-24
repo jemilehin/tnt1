@@ -28,7 +28,6 @@ import {
 } from "../Redux/Member/actions";
 import { MessageModal } from "../Component/Modal";
 const FormPages = (props) => {
-  // console.log(props.phone)
   return (
     <PagerView
       ref={props.pager}
@@ -216,7 +215,6 @@ export default function Registration({ navigation }) {
   };
 
   const errorCallback = (response) => {
-    console.log(response.message)
     setLoading(false);
     if (response.message === "500") {
       setMsgText("Email has been used");

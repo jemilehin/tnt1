@@ -39,14 +39,11 @@ export const LandingScreen = ({ navigation }) => {
     },
   ];
 
-  console.log(WIDTH * 2 + MARGIN)
-
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar />
       <Text style={styles.text}>Welcome</Text>
       <View style={[styles.slider_container]}>
-        {/* <SliderView items={features} viewAttribute={styles.info_container} /> */}
         <ScrollView
           ref={currentPosition}
           pagingEnabled
@@ -54,14 +51,8 @@ export const LandingScreen = ({ navigation }) => {
           showsHorizontalScrollIndicator={false}
           style={{ flexDirection: "row" }}
           onScroll={(event) => {
-            // console.log(event.nativeEvent.contentOffset.x)
-            if(event.nativeEvent.contentOffset.x === 0){
-              setSelected(1)
-            }if(event.nativeEvent.contentOffset.x === WIDTH + MARGIN){
-              setSelected(2)
-            }if(event.nativeEvent.contentOffset.x === WIDTH * 2 + MARGIN){
-              setSelected(3)
-            }
+            let currentPosition = Math.round(event.nativeEvent.contentOffset.x / WIDTH)
+            setSelected(currentPosition+1)
           }}
         >
           {features.map((item, index) => (

@@ -60,7 +60,6 @@ export const Dashboard = ({ navigation, route }) => {
         offset.value = 0
       }
     } catch(e) {
-      // error reading value
       console.log(e)
     }
   }

@@ -33,8 +33,6 @@ const BottomNavigation = ({ navigation,route,user }) => {
     });
   }, [user])
 
-  // console.log("user",user)
-
   return (
     <Tab.Navigator
       initialRouteName="Home"

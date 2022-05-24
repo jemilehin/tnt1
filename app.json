@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "Act",
-    "slug": "ACTApp",
+    "name": "ACT",
+    "slug": "Act_is_for_all",
     "privacy": "public",
     "description": "An app to keep you inform regularly",
     "version": "1.0.0",
@@ -23,6 +23,8 @@
       "usesIcloudStorage": true
     },
     "android": {
+      "package": "mem.Act",
+      "versionCode": 1,
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#FFFFFF"

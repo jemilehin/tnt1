@@ -1,55 +1,21 @@
-import React, { useState } from "react";
-import Toast from "react-native-root-toast";
+import React from "react";
 import {
   View,
   TouchableOpacity,
   StyleSheet,
   Text,
-  Dimensions,
-  ScrollView,
   ActivityIndicator,
-  SafeAreaView,
-  ToastAndroid,
-  TextInput,
   Image
 } from "react-native";
-import { MessageModal } from "../Modal";
-// import AsyncStorage from "@react-native-async-storage/async-storage";
 import OTPInputView from '@twotalltotems/react-native-otp-input';
 
 import colors from "../../Constant/Color.json";
-import {
-  SignUpRequest,
-  StartVerification,
-} from "../../Redux/Member/actions";
 import { Indicator } from "../Indicator";
 
 export default function LoginPassword(props) {
 
-  const [modalVisible, setModalVisible] = React.useState(false);
-  const [msgText, setMsgText] = React.useState("");
-
-  // const errcallback = (response) => {
-    // To-do: when response is unsuccessfull setOtpIsSent to "false"
-    // console.log("error", response);
-  // };
-
-  // const smsCallback = (response) => {
-    // props.setLoading(false);
-    // setOTPsent to true
-    // props.signUpUser only and set
-    //  in api call register user and 
-  // };
-
   const ResendOtp = () => {
     alert("Click send code button to resend OTP")
-    // if (props.password === "") {
-    //   return Toast.show("Password field is empty.", {
-    //     duration: Toast.durations.SHORT,
-    //   });
-    // } else {
-    //   StartVerification(`+234${user.phone}`, smsCallback, errcallback);
-    // }
   };
 
   return (
@@ -84,17 +50,6 @@ export default function LoginPassword(props) {
             size="large"
           />
         ) : null}
-        {/* <Text
-          style={{
-            textAlign: "center",
-            fontSize: 20,
-            fontWeight: "700",
-            marginBottom: 20,
-            color: colors.SECONDARY_COLOR
-          }}
-        >
-          Enter OTP
-        </Text> */}
         <OTPInputView
           pinCount={6}
           style={[styles.input, styles.layoutStyle]}
