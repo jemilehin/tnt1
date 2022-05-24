@@ -1,5 +1,4 @@
 import React from "react";
-import { StoreData } from "../../helpers/AsynStorage";
 import {
   View,
   Button,
@@ -7,177 +6,128 @@ import {
   Text,
   ScrollView,
   SafeAreaView,
+  Dimensions,
   TextInput,
-} from "react-native";
+  KeyboardAvoidingView,
+  Platform
+} from "react-native";import {
+  IconButton,
+} from "react-native-paper";
 import { Picker } from "@react-native-picker/picker";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-
+// import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
 import colors from "../../Constant/Color.json";
 
-export const BasicInfo = ({ step }) => {
-  const [user, setUser] = React.useState({
-    fullname: "",
-    mobile_num: "",
-    email: "",
-    gender: "",
-    state: "",
-    lga: "",
-    ward: "",
-    polling_unit: "",
-    address: "",
-    profile_img: "",
-    id_card: "",
-  });
+export const BasicInfo = (props) => {
   const [gender, setGender] = React.useState("");
-
-
-  React.useEffect(async () => {
-    try {
-    const fullname = await AsyncStorage.getItem('fullname')
-    const mobile_num = await AsyncStorage.getItem('mobile_num')
-    const email = await AsyncStorage.getItem('email')
-    const gender = await AsyncStorage.getItem('gender')
-    setUser({...user,
-      'fullname': fullname,
-      'mobile_num': mobile_num,
-      'email': email,
-      'gender': gender
-    })
-    setGender(gender)
-    } catch (e) {
-      console.log(e);
-    }
-  }, []);
+  const [fullname, setfullnameValue] = React.useState("")
+  const [mobile_num, setMobileNum] = React.useState("")
+  const [email, setEmailValue] = React.useState("")
+  const [password, setPasswordValue] = React.useState("")
+  const [hidePassword,setHidePassword] = React.useState(false)
 
   return (
-    <>
+    <KeyboardAvoidingView
+      behavior={Platform.OS === "ios" ? "padding" : "position"}
+    >
       <View style={[styles.innerContainer, styles.layoutStyle]}>
-        <Text style={[styles.header]}>Registration</Text>
+        <Text style={[styles.header]}>Personal details</Text>
         <Text
-          style={[styles.descriptonText, { flexWrap: "wrap", width: "80%" }]}
+          style={[styles.descriptonText, { flexWrap: "wrap", width: "80%",top:-5 }]}
         >
-          Please make sure all details provided are valid details of yourself.
+          Please provided valid details.
         </Text>
       </View>
-      <SafeAreaView style={{ height: 400, top: 55 }}>
-        <ScrollView
-          showsHorizontalScrollIndicator={true}
-          contentContainerStyle={{ paddingBottom: 100 }}
-          contentOffset={{ x: 0, y: 50 }}
+      <View style={[styles.inputContainer]}>
+        <Text style={[styles.textAttribute, styles.fonts]}>Full Name</Text>
+        <TextInput
+          mode="outlined"
+          outlineColor="transparent"
+          defaultValue={fullname}
+          placeholder="Surname first"
+          style={[styles.input, styles.layoutStyle]}
+          onChangeText={(value) => {
+            props.setFullname(value)
+            setfullnameValue(value)
+          }}
+        />
+      </View>
+
+      <View style={[styles.inputContainer]}>
+        <Text style={[styles.textAttribute, styles.fonts]}>Mobile Number</Text>
+        <TextInput
+          mode="outlined"
+          outlineColor="transparent"
+          textContentType="telephoneNumber"
+          defaultValue={mobile_num}
+          placeholder="Enter your Mobile Number"
+          maxLength={11}
+          keyboardType="phone-pad"
+          style={[styles.input, styles.layoutStyle]}
+          onChangeText={(value) => {
+            props.setNumber(value)
+            setMobileNum(value)
+          }}
+        />
+      </View>
+
+      <View style={[styles.inputContainer]}>
+        <Text style={[styles.textAttribute, styles.fonts]}>Email</Text>
+        <TextInput
+          mode="outlined"
+          outlineColor="transparent"
+          textContentType="emailAddress"
+          defaultValue={email}
+          placeholder="Enter your Email Address"
+          keyboardType="email-address"
+          style={[styles.input, styles.layoutStyle]}
+          onChangeText={(value) => {
+            props.setEmail(value)
+            setEmailValue(value)
+          }}
+        />
+      </View>
+
+      <View style={[styles.inputContainer]}>
+        <Text style={[styles.textAttribute, styles.fonts]}>Password</Text>
+        <View>
+        <TextInput
+          mode="outlined"
+          secureTextEntry={hidePassword}
+          outlineColor="transparent"
+          defaultValue={password}
+          placeholder="Choose a secure Password"
+          maxLength={11}
+          style={[styles.input, styles.layoutStyle]}
+          onChangeText={(value) => {
+            props.setPassword(value)
+            setPasswordValue(value)
+          }}
+        /><IconButton
+        style={{position: "absolute", right: "0%" }}
+        icon={ password.length > 0 && hidePassword ? "eye" : "eye-off"}
+        color={colors.PRIMARY_COLOR}
+        size={20}
+        onPress={() => hidePassword ? setHidePassword(false) : setHidePassword(true)}
+      /></View>
+      {password.length > 0 ? <Text style={{fontSize: 12}}>Min. of 6 Character</Text> : null}
+      </View>
+
+      <View style={[styles.inputContainer]}>
+        <Text style={[styles.textAttribute, styles.fonts]}>Gender</Text>
+        <Picker
+          style={[styles.input, styles.layoutStyle]}
+          selectedValue={gender}
+          onValueChange={async (itemValue, itemIndex) => {
+            setGender(itemValue);
+            props.setGender(itemValue)
+          }}
         >
-          <View style={[styles.inputContainer]}>
-            <Text style={[styles.textAttribute, styles.fonts]}>Full name</Text>
-            <TextInput
-              mode="outlined"
-              outlineColor="transparent"
-              defaultValue={user.fullname}
-              placeholder="Enter your surname first"
-              style={[styles.input, styles.layoutStyle]}
-              onChangeText={async (value) => {
-                try {
-                  await AsyncStorage.setItem("fullname", value);
-                } catch (e) {
-                  console.log(e);
-                }
-              }}
-            />
-          </View>
-
-          {/* <View style={[styles.inputContainer]}>
-            <Text style={[styles.textAttribute, styles.fonts]}>
-              Middle name
-            </Text>
-            <TextInput
-              mode="outlined"
-              outlineColor="transparent"
-              style={[styles.input, styles.layoutStyle]}
-              onChangeText={(value) => setUser({ ...user, name: value })}
-            />
-          </View> */}
-
-          {/* <View style={[styles.inputContainer]}>
-            <Text style={[styles.textAttribute, styles.fonts]}>Last name</Text>
-            <TextInput
-              mode="outlined"
-              outlineColor="transparent"
-              style={[styles.input, styles.layoutStyle]}
-              onChangeText={(value) => setUser({ ...user, name: value })}
-            />
-          </View> */}
-
-          <View style={[styles.inputContainer]}>
-            <Text style={[styles.textAttribute, styles.fonts]}>
-              Mobile number
-            </Text>
-            <TextInput
-              mode="outlined"
-              outlineColor="transparent"
-              textContentType="telephoneNumber"
-              defaultValue={user.mobile_num}
-              keyboardType="phone-pad"
-              style={[styles.input, styles.layoutStyle]}
-              onChangeText={async (value) => {
-                try {
-                  await AsyncStorage.setItem("mobile_num", value);
-                } catch (e) {
-                  console.log(e);
-                }
-              }}
-            />
-          </View>
-
-          {/* <View style={[styles.inputContainer]}>
-            <Text style={[styles.textAttribute, styles.fonts]}>
-              WhatsApp number
-            </Text>
-            <TextInput
-              mode="outlined"
-              outlineColor="transparent"
-              style={[styles.input, styles.layoutStyle]}
-              onChangeText={(value) => setUser({ ...user, name: value })}
-            />
-          </View> */}
-
-          <View style={[styles.inputContainer]}>
-            <Text style={[styles.textAttribute, styles.fonts]}>Email</Text>
-            <TextInput
-              mode="outlined"
-              outlineColor="transparent"
-              textContentType="emailAddress"
-              defaultValue={user.email}
-              keyboardType="email-address"
-              style={[styles.input, styles.layoutStyle]}
-              onChangeText={async (value) => {
-                try {
-                  await AsyncStorage.setItem("email", value);
-                } catch (e) {
-                  console.log(e);
-                }
-              }}
-            />
-          </View>
-
-          <View style={[styles.inputContainer]}>
-            <Text style={[styles.textAttribute, styles.fonts]}>Gender</Text>
-            <Picker
-              style={[styles.input, styles.layoutStyle]}
-              selectedValue={gender}
-              onValueChange={async (itemValue, itemIndex) => {
-                try {
-                  setGender(itemValue);
-                  await AsyncStorage.setItem("gender", itemValue);
-                } catch (e) {
-                  console.log(e);
-                }
-              }}
-            >
-              <Picker.Item label="Female" value="female" />
-              <Picker.Item label="Male" value="male" />
-            </Picker>
-          </View>
-        </ScrollView>
-      </SafeAreaView>
-    </>
+          <Picker.Item style={{color: colors.PRIMARY_COLOR}} label="Select Gender" value="" />
+          <Picker.Item label="Female" value="female" />
+          <Picker.Item label="Male" value="male" />
+        </Picker>
+      </View>
+    </KeyboardAvoidingView >
   );
 };
 
@@ -187,40 +137,34 @@ const styles = StyleSheet.create({
   },
   innerContainer: {
     flexDirection: "column",
-    top: 59,
+    top: "8%",
   },
   header: {
-    fontSize: 30,
-    marginBottom: -2,
+    fontSize: 20,
+    fontWeight: "700",
+    color: colors.PRIMARY_COLOR
   },
   fonts: {
-    fontWeight: "600",
+    fontWeight: "700",
   },
   textAttribute: {
-    color: colors.NATURAL_COLOR.black,
-    fontSize: 15,
+    color: colors.PRIMARY_COLOR,
+    fontSize: 13,
+    marginBottom: 10
   },
   descriptonText: {
-    color: colors.NATURAL_COLOR.black,
-    fontWeight: "400",
-    fontSize: 16,
+    color: colors.PRIMARY_COLOR,
+    fontSize: 15,
+    fontWeight: "100"
   },
   inputContainer: {
     position: "relative",
-    top: 60,
-    marginBottom: 8,
+    top: "9.5%",
+    marginBottom: Dimensions.get("screen").height < 650 ? "8%" : "5%",
   },
   input: {
-    height: 40,
-    padding: 5,
-    shadowColor: "#470000",
-    shadowOffset: {
-      width: 1,
-      height: 2,
-    },
-    shadowOpacity: 1,
-    shadowRadius: 0.5,
-    elevation: 2,
-    backgroundColor: "white",
+    padding: 8,
+    // shadowColor: "#470000",
+    backgroundColor: "#eff3f8",
   },
 });

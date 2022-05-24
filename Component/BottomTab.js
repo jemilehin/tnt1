@@ -1,19 +1,25 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { createMaterialBottomTabNavigator } from "@react-navigation/material-bottom-tabs";
 import { IconButton } from "react-native-paper";
 import Ionicons from "react-native-vector-icons/Ionicons";
 
+import { connect, useDispatch } from "react-redux";
+import { signOutRequest } from "../Redux/Member/actions";
+
 import colors from "../Constant/Color.json";
 import { Dashboard } from "../Screens/Dashboard";
 
-import { AuthContext } from "./context";
+// import { AuthContext } from "./context";
 
 const Tab = createMaterialBottomTabNavigator();
 
-export const BottomNavigation = ({ navigation }) => {
+const BottomNavigation = ({ navigation,route,user }) => {
 
-  const {signOut} = React.useContext(AuthContext);
-  React.useLayoutEffect(() => {
+  // const {signOut} = React.useContext(AuthContext);
+
+  const dispatch = useDispatch()
+
+  React.useEffect(() => {
     navigation.setOptions({
       headerRight: () => (
         <IconButton
@@ -23,13 +29,14 @@ export const BottomNavigation = ({ navigation }) => {
           color={colors.NATURAL_COLOR.white}
         />
       ),
+      title: `Welcome ${user.fullname}`
     });
-  }, [navigation]);
+  }, [user])
 
   return (
     <Tab.Navigator
       initialRouteName="Home"
-      barStyle={{backgroundColor: colors.SECONDARY_COLOR}}
+      barStyle={{backgroundColor: colors.PRIMARY_COLOR}}
       
     >
       <Tab.Screen
@@ -43,12 +50,12 @@ export const BottomNavigation = ({ navigation }) => {
               color={colors.NATURAL_COLOR.white}
             />
           ),
-          tabBarLabel: "Signout",
+          tabBarLabel: "Log Out",
         }}
         listeners={() => ({
           tabPress: (event) => {
             event.preventDefault();
-            signOut()
+            dispatch(signOutRequest())
           },
         })}
       />
@@ -56,3 +63,9 @@ export const BottomNavigation = ({ navigation }) => {
     </Tab.Navigator>
   );
 };
+
+const mapStateToProps = state => {
+  return {user: state.reducers.user}
+}
+
+export default connect(mapStateToProps, null)(BottomNavigation)

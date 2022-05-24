@@ -1,27 +1,11 @@
-import { createStore, combineReducers } from "redux";
+import { createStore, combineReducers, applyMiddleware } from "redux";
+import thunk from "redux-thunk";
+import {reducers} from "./Member/reducers";
 
 const rootReducers = combineReducers({
-    
+   reducers
 })
 
-const reducer = (state = {},action) => {
-    switch (action.type) {
-        case 'SIGNIN_SUCCESS':
-            return {
-                user: action.payload.user,
-                token: action.payload.token
-            }
-        case 'SIGNUP_SUCCESS':
-            return{
-                user: action.payload.user
-            }
-        case 'SIGNUP_FAILURE':
-            return {}
-        case 'SIGNOUT_SUCCESS':
-            return {}
-        default:
-            return state;
-        }
-}
+const store = createStore(rootReducers,applyMiddleware(thunk))
 
-let store = createStore(reducer)
+export default store

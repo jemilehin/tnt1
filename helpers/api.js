@@ -1,7 +1,7 @@
 import axios from "axios";
 
-const URL = "http://act.mainnetconnections.com/api/auth/";
-// const URL = "http://172.16.1.121:8000/api"
+// export const URL = "http://act.mainnetconnections.com/api/auth/";
+export const URL = "http://actmovement.org/api/auth/"
 
 export const instance = axios.create({
   baseURL: URL,
@@ -14,4 +14,4 @@ export const instance = axios.create({
 //   return config;
 // });
 
-export default instance;
+// export default instance;
